@@ -1,0 +1,149 @@
+{
+  "name": "Render a Vega-Lite chart to SVG",
+  "gateway": "chart-specification-rendering",
+  "gatewayPackageName": "@red-cup-engineering/chart-specification-rendering-service",
+  "section": "lib/emsenn/services/561-group/services/engineering-services-section/services/chart-specification-rendering-service",
+  "operation": "render-vega-lite-spec-as-svg",
+  "origin": "https://market.561.group",
+  "route": "/v1/render-vega-lite-spec-as-svg",
+  "method": "POST",
+  "price": "$0.005",
+  "category": "data",
+  "output": {
+    "schema": {
+      "type": "object",
+      "required": [
+        "svg",
+        "sha256",
+        "bytes",
+        "warnings"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "svg": {
+          "type": "string",
+          "description": "The SVG document text."
+        },
+        "sha256": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$",
+          "description": "SHA-256 of the UTF-8 bytes of svg."
+        },
+        "bytes": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "warnings": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Vega-Lite compiler and renderer warnings, in emission order, without duplicates."
+        }
+      }
+    },
+    "example": {
+      "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" xmlns:xlink=\"http://www.w3.org/1999/xlink\" version=\"1.1\" class=\"marks\" width=\"110\" height=\"70\" viewBox=\"0 0 110 70\" role=\"img\" aria-labelledby=\"vl-f53d12b8-desc\"><desc id=\"vl-f53d12b8-desc\">Two bars: a is 3, b is 5.</desc><rect width=\"110\" height=\"70\" fill=\"white\"/><g fill=\"none\" stroke-miterlimit=\"10\" transform=\"translate(5,5)\"><g class=\"mark-group role-frame root\" role=\"graphics-object\" aria-roledescription=\"group mark container\"><g transform=\"translate(0,0)\"><path class=\"background\" aria-hidden=\"true\" d=\"M0.5,0.5h100v60h-100Z\" stroke=\"#ddd\"/><g><g class=\"mark-rect role-mark marks\" role=\"graphics-object\" aria-roledescription=\"rect mark container\"><path aria-label=\"k: a; v: 3\" role=\"graphics-symbol\" aria-roledescription=\"bar\" d=\"M2.5,24h45v36h-45Z\" fill=\"#4c78a8\"/><path aria-label=\"k: b; v: 5\" role=\"graphics-symbol\" aria-roledescription=\"bar\" d=\"M52.5,0h45v60h-45Z\" fill=\"#4c78a8\"/></g></g><path class=\"foreground\" aria-hidden=\"true\" d=\"\" display=\"none\"/></g></g></g></svg>\n",
+      "sha256": "7ba0e5a7a1ed3bf40a418df08e76857905d143d73e5436158d4fa89948d9db2b",
+      "bytes": 1027,
+      "warnings": []
+    }
+  },
+  "framings": [
+    {
+      "key": "default",
+      "title": "Render a Vega-Lite chart to SVG",
+      "description": "Render a Vega-Lite v5 chart specification, with its data supplied inline or as files, to a byte-reproducible accessible SVG: the same request always yields the same bytes and sha256; text stays text; hatched fills and title/description are built in. Offline and deterministic, so a figure can live as data and be rebuilt anywhere.",
+      "tags": [
+        "chart",
+        "vega-lite",
+        "svg",
+        "reproducible",
+        "research"
+      ],
+      "serviceName": "render-vega-lite-spec-as-svg"
+    }
+  ],
+  "ledgerAccount": "Income:Sales:X402:Chart-specification-rendering",
+  "markets": [
+    "x402-bazaar",
+    "402index",
+    "house-capability-market",
+    "house-seller-catalog"
+  ],
+  "saleStatus": "held",
+  "compute": {
+    "package": "@red-cup-engineering/chart-specification-rendering-service",
+    "subpath": "./render-vega-lite-spec-as-svg",
+    "export": "renderVegaLiteSpecAsSvg",
+    "args": [
+      "body"
+    ]
+  },
+  "runtime": "node",
+  "requestMaxBytes": 1048576,
+  "bodyExample": {
+    "spec": {
+      "description": "Two bars: a is 3, b is 5.",
+      "width": 100,
+      "height": 60,
+      "data": {
+        "values": [
+          {
+            "k": "a",
+            "v": 3
+          },
+          {
+            "k": "b",
+            "v": 5
+          }
+        ]
+      },
+      "mark": "bar",
+      "encoding": {
+        "x": {
+          "field": "k",
+          "type": "nominal",
+          "axis": null
+        },
+        "y": {
+          "field": "v",
+          "type": "quantitative",
+          "axis": null
+        }
+      }
+    }
+  },
+  "bodySchema": {
+    "type": "object",
+    "required": [
+      "spec"
+    ],
+    "additionalProperties": false,
+    "properties": {
+      "spec": {
+        "type": "object",
+        "description": "A Vega-Lite v5 specification (JSON)."
+      },
+      "data": {
+        "type": [
+          "object",
+          "array"
+        ],
+        "description": "Either an array of rows (inline data for a spec with no top-level data) or a map of root-relative path to file text (or JSON value) that the spec's data.url values resolve to."
+      },
+      "baseUrl": {
+        "type": "string",
+        "description": "Root-relative directory the spec's relative urls are resolved against (the directory the spec file lives in). Default: the root."
+      }
+    }
+  },
+  "seller": {
+    "enterprise": "engineering",
+    "entity": "561-group-llc",
+    "record": {
+      "path": "lib/emsenn/services/561-group/services/engineering-services-section/lib/agency/enterprises/engineering.json",
+      "sha256": "6af4ed9d1e4612b0383267e7ffe0ad028c52164ee3c5136110d434384a29c39f"
+    }
+  }
+}

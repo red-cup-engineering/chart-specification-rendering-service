@@ -1,0 +1,87 @@
+{
+  "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
+  "description": "Bar chart of births into slavery as a share of estimated U.S. births, by decade from the 1790s to the 1850s. The share is between 16 and 18 percent in every decade. The 1790s bar is hatched because its denominator is assumed; a vertical whisker spans the share implied by assumed crude birth rates of 45 to 65 per 1,000. The 1790s and 1850s bars are labelled.",
+  "width": 432,
+  "height": 230,
+  "autosize": { "type": "fit", "contains": "padding" },
+  "padding": { "left": 6, "right": 12, "top": 6, "bottom": 4 },
+  "title": { "text": "Births into slavery as a share of U.S. births", "anchor": "start", "frame": "group", "offset": 10, "fontSize": 10, "fontWeight": "bold", "color": "#0b0b0b" },
+  "config": {
+    "font": "Helvetica, Arial, sans-serif",
+    "background": "#ffffff",
+    "view": { "stroke": null },
+    "axis": { "ticks": false, "labelColor": "#898781", "labelFontSize": 9, "titleColor": "#52514e", "titleFontSize": 9, "titleFontWeight": "normal", "domain": false, "gridColor": "#e1e0d9", "gridWidth": 0.6 }
+  },
+  "layer": [
+    {
+      "data": { "url": "../data/derived/births-1790-1859.csv" },
+      "transform": [{ "calculate": "datum.start_year + 's'", "as": "decade" }],
+      "mark": { "type": "bar", "strokeWidth": 2 },
+      "encoding": {
+        "x": {
+          "field": "decade", "type": "ordinal", "sort": null,
+          "scale": { "paddingInner": 0.1, "paddingOuter": 0.05 },
+          "axis": { "title": null, "labelAngle": 0, "labelPadding": 5, "grid": false, "domain": true, "domainColor": "#c3c2b7", "zindex": 1 }
+        },
+        "y": {
+          "field": "share_pct", "type": "quantitative",
+          "scale": { "domain": [0, 24], "nice": false },
+          "axis": { "title": "Percent of estimated births", "values": [0, 5, 10, 15, 20], "tickCount": 5, "labelPadding": 6, "titlePadding": 8 }
+        },
+        "fill": { "condition": { "test": "datum.denominator_type === 'assumed'", "value": "url(#hatch-2a78d6)" }, "value": "#2a78d6" },
+        "stroke": { "condition": { "test": "datum.denominator_type === 'assumed'", "value": "#2a78d6" }, "value": "#ffffff" }
+      }
+    },
+    {
+      "data": { "url": "../data/records/2026-10-17-captive-birth-shares-source-series.json" },
+      "transform": [
+        { "calculate": "datum.source.captive_births_1790_1859_by_decade[0]", "as": "captive" },
+        { "calculate": "datum.source.mean_population_1790s", "as": "population" },
+        { "flatten": ["sensitivities"], "as": ["sensitivity"] },
+        { "calculate": "datum.sensitivity.rate", "as": "rate" },
+        { "joinaggregate": [{ "op": "min", "field": "rate", "as": "lowest_rate" }, { "op": "max", "field": "rate", "as": "highest_rate" }] },
+        { "filter": "datum.rate === datum.lowest_rate || datum.rate === datum.highest_rate" },
+        { "calculate": "100 * datum.captive / (datum.population * datum.rate * 10 / 1000)", "as": "implied_share" },
+        { "aggregate": [
+          { "op": "min", "field": "implied_share", "as": "low" },
+          { "op": "max", "field": "implied_share", "as": "high" },
+          { "op": "min", "field": "rate", "as": "lowest_rate" },
+          { "op": "max", "field": "rate", "as": "highest_rate" }
+        ] },
+        { "calculate": "'1790s'", "as": "decade" },
+        { "calculate": "['1790s denominator assumed', '(crude birth rate ' + datum.lowest_rate + '–' + datum.highest_rate + ' per 1,000)', 'implies ' + format(datum.low, '.1f') + '–' + format(datum.high, '.1f') + '%']", "as": "note" }
+      ],
+      "layer": [
+        { "mark": { "type": "rule", "color": "#52514e", "strokeWidth": 1.2 }, "encoding": { "x": { "field": "decade", "type": "ordinal", "sort": null }, "y": { "field": "low", "type": "quantitative" }, "y2": { "field": "high" } } },
+        { "mark": { "type": "tick", "color": "#52514e", "thickness": 1.2, "size": 8 }, "encoding": { "x": { "field": "decade", "type": "ordinal", "sort": null }, "y": { "field": "low", "type": "quantitative" } } },
+        { "mark": { "type": "tick", "color": "#52514e", "thickness": 1.2, "size": 8 }, "encoding": { "x": { "field": "decade", "type": "ordinal", "sort": null }, "y": { "field": "high", "type": "quantitative" } } },
+        {
+          "mark": { "type": "text", "align": "left", "baseline": "top", "dx": 12, "dy": 0, "fontSize": 8, "lineHeight": 11, "color": "#52514e" },
+          "encoding": { "x": { "field": "decade", "type": "ordinal", "sort": null }, "y": { "datum": 24, "type": "quantitative" }, "text": { "field": "note" } }
+        }
+      ]
+    },
+    {
+      "data": { "url": "../data/derived/births-1790-1859.csv" },
+      "transform": [
+        { "joinaggregate": [{ "op": "min", "field": "start_year", "as": "first_year" }, { "op": "max", "field": "start_year", "as": "last_year" }] },
+        { "filter": "datum.start_year === datum.last_year" },
+        { "calculate": "datum.start_year + 's'", "as": "decade" },
+        { "calculate": "format(datum.share_pct, '.1f') + '%'", "as": "label" }
+      ],
+      "mark": { "type": "text", "baseline": "bottom", "dy": -4, "fontSize": 8, "color": "#0b0b0b" },
+      "encoding": { "x": { "field": "decade", "type": "ordinal", "sort": null }, "y": { "field": "share_pct", "type": "quantitative" }, "text": { "field": "label" } }
+    },
+    {
+      "data": { "url": "../data/derived/births-1790-1859.csv" },
+      "transform": [
+        { "joinaggregate": [{ "op": "min", "field": "start_year", "as": "first_year" }] },
+        { "filter": "datum.start_year === datum.first_year" },
+        { "calculate": "datum.start_year + 's'", "as": "decade" },
+        { "calculate": "format(datum.share_pct, '.1f') + '%'", "as": "label" }
+      ],
+      "mark": { "type": "text", "align": "left", "baseline": "bottom", "dx": 6, "dy": -3, "fontSize": 8, "color": "#0b0b0b" },
+      "encoding": { "x": { "field": "decade", "type": "ordinal", "sort": null }, "y": { "field": "share_pct", "type": "quantitative" }, "text": { "field": "label" } }
+    }
+  ]
+}

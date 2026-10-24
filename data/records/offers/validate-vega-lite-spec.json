@@ -1,0 +1,150 @@
+{
+  "name": "Validate a Vega-Lite chart spec",
+  "gateway": "chart-specification-rendering",
+  "gatewayPackageName": "@red-cup-engineering/chart-specification-rendering-service",
+  "section": "lib/emsenn/services/561-group/services/engineering-services-section/services/chart-specification-rendering-service",
+  "operation": "validate-vega-lite-spec",
+  "origin": "https://market.561.group",
+  "route": "/v1/validate-vega-lite-spec",
+  "method": "POST",
+  "price": "$0.002",
+  "category": "data",
+  "output": {
+    "schema": {
+      "type": "object",
+      "required": [
+        "valid",
+        "issues",
+        "warnings"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "valid": {
+          "type": "boolean"
+        },
+        "issues": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": [
+              "kind",
+              "path",
+              "message"
+            ],
+            "additionalProperties": false,
+            "properties": {
+              "kind": {
+                "enum": [
+                  "schema",
+                  "compile"
+                ]
+              },
+              "path": {
+                "type": "string"
+              },
+              "message": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        "warnings": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "example": {
+      "valid": true,
+      "issues": [],
+      "warnings": []
+    }
+  },
+  "framings": [
+    {
+      "key": "default",
+      "title": "Validate a Vega-Lite chart spec",
+      "description": "Check a Vega-Lite v5 specification against the pinned vega-lite JSON schema and by compiling it, returning schema issues, compile errors and compiler warnings as data without reading any data file.",
+      "tags": [
+        "chart",
+        "vega-lite",
+        "validation",
+        "json-schema"
+      ],
+      "serviceName": "validate-vega-lite-spec"
+    }
+  ],
+  "ledgerAccount": "Income:Sales:X402:Chart-specification-rendering",
+  "markets": [
+    "x402-bazaar",
+    "402index",
+    "house-capability-market",
+    "house-seller-catalog"
+  ],
+  "saleStatus": "held",
+  "compute": {
+    "package": "@red-cup-engineering/chart-specification-rendering-service",
+    "subpath": "./validate-vega-lite-spec",
+    "export": "validateVegaLiteSpec",
+    "args": [
+      "body"
+    ]
+  },
+  "runtime": "node",
+  "requestMaxBytes": 1048576,
+  "bodyExample": {
+    "spec": {
+      "description": "Two bars: a is 3, b is 5.",
+      "width": 100,
+      "height": 60,
+      "data": {
+        "values": [
+          {
+            "k": "a",
+            "v": 3
+          },
+          {
+            "k": "b",
+            "v": 5
+          }
+        ]
+      },
+      "mark": "bar",
+      "encoding": {
+        "x": {
+          "field": "k",
+          "type": "nominal",
+          "axis": null
+        },
+        "y": {
+          "field": "v",
+          "type": "quantitative",
+          "axis": null
+        }
+      }
+    }
+  },
+  "bodySchema": {
+    "type": "object",
+    "required": [
+      "spec"
+    ],
+    "additionalProperties": false,
+    "properties": {
+      "spec": {
+        "type": "object",
+        "description": "A Vega-Lite v5 specification (JSON)."
+      }
+    }
+  },
+  "seller": {
+    "enterprise": "engineering",
+    "entity": "561-group-llc",
+    "record": {
+      "path": "lib/emsenn/services/561-group/services/engineering-services-section/lib/agency/enterprises/engineering.json",
+      "sha256": "6af4ed9d1e4612b0383267e7ffe0ad028c52164ee3c5136110d434384a29c39f"
+    }
+  }
+}

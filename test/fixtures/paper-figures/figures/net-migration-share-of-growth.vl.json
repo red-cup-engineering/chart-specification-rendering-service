@@ -1,0 +1,55 @@
+{
+  "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
+  "description": "Bar chart of net migration as a share of U.S. population growth in each decade from 1790-1800 to 1850-60. The share is 11.9 percent in 1790-1800, falls to 7.1 percent in 1820-30, and rises to 32.3 percent in 1850-60; it never reaches the dashed reference line at half of growth. The first and last bars are labelled.",
+  "width": 432,
+  "height": 230,
+  "autosize": { "type": "fit", "contains": "padding" },
+  "padding": { "left": 6, "right": 12, "top": 6, "bottom": 4 },
+  "title": { "text": "Net migration as a share of U.S. population growth", "anchor": "start", "frame": "group", "offset": 10, "fontSize": 10, "fontWeight": "bold", "color": "#0b0b0b" },
+  "config": {
+    "font": "Helvetica, Arial, sans-serif",
+    "background": "#ffffff",
+    "view": { "stroke": null },
+    "axis": { "ticks": false, "labelColor": "#898781", "labelFontSize": 9, "titleColor": "#52514e", "titleFontSize": 9, "titleFontWeight": "normal", "domain": false, "gridColor": "#e1e0d9", "gridWidth": 0.6 }
+  },
+  "layer": [
+    {
+      "data": { "url": "../data/derived/us-migration-growth-1790-1860.csv" },
+      "transform": [{ "calculate": "datum.start_year + '–' + datum.end_year", "as": "interval" }],
+      "mark": { "type": "bar", "color": "#2a78d6", "stroke": "#ffffff", "strokeWidth": 2 },
+      "encoding": {
+        "x": {
+          "field": "interval", "type": "ordinal", "sort": null,
+          "scale": { "paddingInner": 0.1, "paddingOuter": 0.05 },
+          "axis": { "title": null, "labelAngle": 0, "labelPadding": 5, "grid": false, "domain": true, "domainColor": "#c3c2b7", "zindex": 1 }
+        },
+        "y": {
+          "field": "net_migration_share_total_growth_pct", "type": "quantitative",
+          "scale": { "domain": [0, 60], "nice": false },
+          "axis": { "title": "Percent of growth", "values": [0, 10, 20, 30, 40, 50], "tickCount": 6, "labelPadding": 6, "titlePadding": 8 }
+        }
+      }
+    },
+    {
+      "data": { "values": [{ "reference": 50 }] },
+      "layer": [
+        { "mark": { "type": "rule", "color": "#898781", "strokeWidth": 0.8, "strokeDash": [3, 3] }, "encoding": { "y": { "field": "reference", "type": "quantitative" } } },
+        {
+          "mark": { "type": "text", "align": "right", "baseline": "bottom", "dy": -4, "fontSize": 8, "color": "#52514e", "text": "half of growth" },
+          "encoding": { "x": { "value": "width" }, "y": { "field": "reference", "type": "quantitative" } }
+        }
+      ]
+    },
+    {
+      "data": { "url": "../data/derived/us-migration-growth-1790-1860.csv" },
+      "transform": [
+        { "joinaggregate": [{ "op": "min", "field": "start_year", "as": "first_year" }, { "op": "max", "field": "start_year", "as": "last_year" }] },
+        { "filter": "datum.start_year === datum.first_year || datum.start_year === datum.last_year" },
+        { "calculate": "datum.start_year + '–' + datum.end_year", "as": "interval" },
+        { "calculate": "format(datum.net_migration_share_total_growth_pct, '.1f') + '%'", "as": "label" }
+      ],
+      "mark": { "type": "text", "baseline": "bottom", "dy": -4, "fontSize": 8, "color": "#0b0b0b" },
+      "encoding": { "x": { "field": "interval", "type": "ordinal", "sort": null }, "y": { "field": "net_migration_share_total_growth_pct", "type": "quantitative" }, "text": { "field": "label" } }
+    }
+  ]
+}

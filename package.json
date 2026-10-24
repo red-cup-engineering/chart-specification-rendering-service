@@ -1,0 +1,217 @@
+{
+  "name": "@red-cup-engineering/chart-specification-rendering-service",
+  "version": "0.1.0",
+  "description": "Renders Vega-Lite (v5) chart specifications to byte-reproducible SVG, headless and offline, so research figures can stay as data (Vega-Lite JSON) in Science repositories.",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/red-cup-engineering/chart-specification-rendering-service.git"
+  },
+  "type": "module",
+  "private": false,
+  "license": "MIT",
+  "exports": {
+    ".": "./scripts/index.mjs",
+    "./render-vega-lite-spec-as-svg": "./scripts/render-vega-lite-spec-as-svg.mjs",
+    "./validate-vega-lite-spec": "./scripts/validate-vega-lite-spec.mjs",
+    "./render-chart-specifications": "./scripts/render-chart-specifications.mjs"
+  },
+  "bin": {
+    "render-vega-lite-spec-as-svg": "scripts/render-vega-lite-spec-as-svg.mjs",
+    "validate-vega-lite-spec": "scripts/validate-vega-lite-spec.mjs",
+    "render-chart-specifications": "scripts/render-chart-specifications.mjs"
+  },
+  "files": [
+    "scripts",
+    "data",
+    "README.md",
+    "LICENSE",
+    "package.json"
+  ],
+  "dependencies": {
+    "@red-cup-engineering/javascript-node-services-section": "0.4.1",
+    "@red-cup-engineering/json-schema-services-section": "0.5.1",
+    "vega": "5.33.1",
+    "vega-lite": "5.23.0"
+  },
+  "scripts": {
+    "check": "for file in scripts/*.mjs test/*.mjs; do node --check \"$file\" || exit; done",
+    "test": "node --test test/*.test.mjs",
+    "pack:dry-run": "npm pack --dry-run --ignore-scripts"
+  },
+  "keywords": [
+    "vega-lite",
+    "vega",
+    "chart",
+    "svg",
+    "deterministic",
+    "reproducible",
+    "figures"
+  ],
+  "engines": {
+    "node": ">=24.2.0"
+  },
+  "funding": {
+    "type": "individual",
+    "url": "https://github.com/561-group/.github/blob/main/TIPS.md"
+  },
+  "x-market": {
+    "offers": [
+      {
+        "operation": "render-vega-lite-spec-as-svg",
+        "subpath": "./render-vega-lite-spec-as-svg",
+        "export": "renderVegaLiteSpecAsSvg",
+        "route": "/v1/render-vega-lite-spec-as-svg",
+        "price": {
+          "amount": "$0.005"
+        },
+        "framings": [
+          {
+            "key": "default",
+            "title": "Render a Vega-Lite chart to SVG",
+            "description": "Render a Vega-Lite v5 chart specification, with its data supplied inline or as files, to a byte-reproducible accessible SVG: the same request always yields the same bytes and sha256; text stays text; hatched fills and title/description are built in. Offline and deterministic, so a figure can live as data and be rebuilt anywhere.",
+            "tags": [
+              "chart",
+              "vega-lite",
+              "svg",
+              "reproducible",
+              "research"
+            ],
+            "serviceName": "render-vega-lite-spec-as-svg"
+          }
+        ],
+        "method": "POST",
+        "ledgerAccount": "Income:Sales:X402:Chart-specification-rendering",
+        "markets": [
+          "x402-bazaar",
+          "402index",
+          "house-capability-market",
+          "house-seller-catalog"
+        ],
+        "saleStatus": "held",
+        "seller": {
+          "enterprise": "engineering"
+        },
+        "category": "data",
+        "runtime": "node",
+        "requestMaxBytes": 1048576,
+        "examples": {
+          "input": {
+            "spec": {
+              "description": "Two bars: a is 3, b is 5.",
+              "width": 100,
+              "height": 60,
+              "data": {
+                "values": [
+                  {
+                    "k": "a",
+                    "v": 3
+                  },
+                  {
+                    "k": "b",
+                    "v": 5
+                  }
+                ]
+              },
+              "mark": "bar",
+              "encoding": {
+                "x": {
+                  "field": "k",
+                  "type": "nominal",
+                  "axis": null
+                },
+                "y": {
+                  "field": "v",
+                  "type": "quantitative",
+                  "axis": null
+                }
+              }
+            }
+          },
+          "output": {
+            "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" xmlns:xlink=\"http://www.w3.org/1999/xlink\" version=\"1.1\" class=\"marks\" width=\"110\" height=\"70\" viewBox=\"0 0 110 70\" role=\"img\" aria-labelledby=\"vl-f53d12b8-desc\"><desc id=\"vl-f53d12b8-desc\">Two bars: a is 3, b is 5.</desc><rect width=\"110\" height=\"70\" fill=\"white\"/><g fill=\"none\" stroke-miterlimit=\"10\" transform=\"translate(5,5)\"><g class=\"mark-group role-frame root\" role=\"graphics-object\" aria-roledescription=\"group mark container\"><g transform=\"translate(0,0)\"><path class=\"background\" aria-hidden=\"true\" d=\"M0.5,0.5h100v60h-100Z\" stroke=\"#ddd\"/><g><g class=\"mark-rect role-mark marks\" role=\"graphics-object\" aria-roledescription=\"rect mark container\"><path aria-label=\"k: a; v: 3\" role=\"graphics-symbol\" aria-roledescription=\"bar\" d=\"M2.5,24h45v36h-45Z\" fill=\"#4c78a8\"/><path aria-label=\"k: b; v: 5\" role=\"graphics-symbol\" aria-roledescription=\"bar\" d=\"M52.5,0h45v60h-45Z\" fill=\"#4c78a8\"/></g></g><path class=\"foreground\" aria-hidden=\"true\" d=\"\" display=\"none\"/></g></g></g></svg>\n",
+            "sha256": "7ba0e5a7a1ed3bf40a418df08e76857905d143d73e5436158d4fa89948d9db2b",
+            "bytes": 1027,
+            "warnings": []
+          }
+        }
+      },
+      {
+        "operation": "validate-vega-lite-spec",
+        "subpath": "./validate-vega-lite-spec",
+        "export": "validateVegaLiteSpec",
+        "route": "/v1/validate-vega-lite-spec",
+        "price": {
+          "amount": "$0.002"
+        },
+        "framings": [
+          {
+            "key": "default",
+            "title": "Validate a Vega-Lite chart spec",
+            "description": "Check a Vega-Lite v5 specification against the pinned vega-lite JSON schema and by compiling it, returning schema issues, compile errors and compiler warnings as data without reading any data file.",
+            "tags": [
+              "chart",
+              "vega-lite",
+              "validation",
+              "json-schema"
+            ],
+            "serviceName": "validate-vega-lite-spec"
+          }
+        ],
+        "method": "POST",
+        "ledgerAccount": "Income:Sales:X402:Chart-specification-rendering",
+        "markets": [
+          "x402-bazaar",
+          "402index",
+          "house-capability-market",
+          "house-seller-catalog"
+        ],
+        "saleStatus": "held",
+        "seller": {
+          "enterprise": "engineering"
+        },
+        "category": "data",
+        "runtime": "node",
+        "requestMaxBytes": 1048576,
+        "examples": {
+          "input": {
+            "spec": {
+              "description": "Two bars: a is 3, b is 5.",
+              "width": 100,
+              "height": 60,
+              "data": {
+                "values": [
+                  {
+                    "k": "a",
+                    "v": 3
+                  },
+                  {
+                    "k": "b",
+                    "v": 5
+                  }
+                ]
+              },
+              "mark": "bar",
+              "encoding": {
+                "x": {
+                  "field": "k",
+                  "type": "nominal",
+                  "axis": null
+                },
+                "y": {
+                  "field": "v",
+                  "type": "quantitative",
+                  "axis": null
+                }
+              }
+            }
+          },
+          "output": {
+            "valid": true,
+            "issues": [],
+            "warnings": []
+          }
+        }
+      }
+    ]
+  }
+}
