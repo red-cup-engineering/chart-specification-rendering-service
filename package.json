@@ -1,6 +1,6 @@
 {
   "name": "@red-cup-engineering/chart-specification-rendering-service",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "Renders Vega-Lite (v5 or v6) chart specifications to byte-reproducible SVG, headless and offline, so research figures can stay as data (Vega-Lite JSON) in Science repositories.",
   "repository": {
     "type": "git",
