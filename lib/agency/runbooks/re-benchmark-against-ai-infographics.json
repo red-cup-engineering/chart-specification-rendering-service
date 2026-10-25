@@ -1,0 +1,20 @@
+{
+  "id": "re-benchmark-against-ai-infographics",
+  "name": "re-benchmark against AI infographics",
+  "kind": "runbook",
+  "x-status": "proposed instance; see commission-an-infographic for the form gap.",
+  "office": "senior-engineer",
+  "duty": "producing-deterministic-infographics",
+  "trigger": "The engine, themes, fonts or rubric changed; a new NotebookLM or Gemini infographic of the same subject exists; or a quarter has passed. Meet-then-beat: the benchmark is whatever the best available AI infographic of the subject currently is.",
+  "steps": [
+    { "n": 1, "name": "Collect samples", "kind": "script-by-hand", "action": "rclone copy (read only) from gdrive:561 Group/Media/gemini-notebook/*/infographic/ and gdrive:media/notebooklm/ into an untrusted scratch directory; record sha256 and Drive ids." },
+    { "n": 2, "name": "Audit samples", "kind": "judgment", "who": "a reviewer, human or model, named in manifest.judgment", "action": "Fill audit fields from looking at each PNG. State that no OCR was used if none was." },
+    { "n": 3, "name": "Re-score ours", "kind": "script", "skill": "score-infographic" },
+    { "n": 4, "name": "Compare", "kind": "script", "skill": "benchmark-against-ai-infographics", "check": "comparison.json written; every ours/benchmark item present" },
+    { "n": 5, "name": "Write the assessment", "kind": "judgment", "action": "State where we win and where we do not, from comparison.json, with no composite across audited and measured values." },
+    { "n": 6, "name": "Record debt", "kind": "record", "action": "Open a system-debt record for each criterion where the benchmark wins and a fix is possible." }
+  ],
+  "checks": ["manifest.judgment present", "benchmark PNG hashes match the manifest", "assessment names at least one area where the benchmark wins"],
+  "rollback": "The comparison is an observation; withdraw it by recording a superseding comparison. Scratch copies are deleted; Drive sources are never modified.",
+  "skills": ["score-infographic", "benchmark-against-ai-infographics"]
+}

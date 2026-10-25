@@ -1,0 +1,45 @@
+{
+  "id": "commission-an-infographic",
+  "name": "commission an infographic",
+  "kind": "runbook",
+  "x-status": "proposed instance. No runbook form exists yet in lib/agency; this is written in the shape of a duty (from/to/cost/otherwise/receiver-condition) plus ordered steps, and the gap is recorded in system-debt record 2026-10-24-infographic-forms-unadmitted.",
+  "office": "senior-engineer",
+  "duty": "producing-deterministic-infographics",
+  "trigger": "A receiver (a research paper, a video shot list, a page) asks for an infographic, or a Climate Place-By-Place figure is due. The norm: every published infographic is a spec plus data with provenance, not a hand-drawn or model-generated picture.",
+  "steps": [
+    {
+      "n": 1,
+      "name": "Qualify the request",
+      "kind": "judgment",
+      "who": "senior-engineer (human or agent), says so in the record",
+      "action": "Name the receiver, the canvas (landscape-16x9, portrait-9x16, square), the message in one sentence, and the data. Refuse and return the request if any number has no source."
+    },
+    {
+      "n": 2,
+      "name": "Fetch the data with provenance",
+      "kind": "judgment-then-record",
+      "action": "Download open data; commit it under data/ with the retrieval date, URL and licence in the source line. Mark anything invented as provenance kind fixture or illustrative."
+    },
+    {
+      "n": 3,
+      "name": "Write the spec",
+      "kind": "judgment",
+      "action": "Compose blocks from the schema. Prefer a builder script (examples/build-example-specs.mjs) when the data is a file, so the spec is reproducible from data.",
+      "reference": "skill render-infographic-from-spec, references/spec-quickstart.md"
+    },
+    { "n": 4, "name": "Render", "kind": "script", "skill": "render-infographic-from-spec", "check": "no warnings; refusal means trim content or choose a taller canvas" },
+    { "n": 5, "name": "Score", "kind": "script", "skill": "score-infographic", "check": "failing is empty" },
+    { "n": 6, "name": "Rasterize frames when video needs them", "kind": "script", "skill": "rasterize-infographic-frame", "check": "PNG at the requested size; digest of the SVG recorded" },
+    {
+      "n": 7,
+      "name": "Look at it",
+      "kind": "judgment",
+      "action": "Open the PNG. The scorer does not judge illustration, taste or whether the message is clear. Return to step 3 if it is not."
+    },
+    { "n": 8, "name": "Hand over and receive", "kind": "receiving", "action": "Give the receiver the SVG, PNGs, the spec and the report. The receiver, not the producer, accepts. Record the SVG digest in the receiving record." }
+  ],
+  "checks": ["every data block declares provenance", "node --test test/infographic.test.mjs passes (golden digests)", "score-infographic failing is empty", "a second render is byte-identical"],
+  "rollback": "Nothing outside the repository is changed by rendering. To roll back a handed-over infographic, supply the receiver with the previous SVG digest's file from version control and record that the later digest is withdrawn. A golden-digest change in this repository is reverted by reverting the commit that changed the engine or spec; never by editing the digest alone.",
+  "refusals": ["invalid spec", "content does not fit at the minimum scale", "data without a source", "glyph missing from the shipped fonts", "non-observed data without a provenance badge"],
+  "skills": ["render-infographic-from-spec", "score-infographic", "rasterize-infographic-frame"]
+}

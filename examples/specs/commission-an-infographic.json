@@ -1,0 +1,130 @@
+{
+ "version": 1,
+ "id": "commission-an-infographic",
+ "lang": "en",
+ "meta": {
+  "title": "How a deterministic infographic is made",
+  "description": "A five-step process from data and a JSON spec to a byte-identical SVG and PNG video frames, a comparison with image-generation models on reproducibility, editability and traceability, and the timeline of the engine's capabilities.",
+  "license": "CC BY 4.0"
+ },
+ "canvas": {
+  "preset": "landscape-16x9",
+  "safeArea": 0.04
+ },
+ "theme": "ledger",
+ "blocks": [
+  {
+   "type": "header",
+   "id": "header",
+   "kicker": "561 Group · Red Cup Engineering",
+   "title": "From data to a frame you can reproduce",
+   "subtitle": "A spec goes in; the same SVG comes out, every time.",
+   "badge": {
+    "text": "No model in the loop",
+    "icon": "shield"
+   }
+  },
+  {
+   "type": "process",
+   "id": "steps",
+   "title": "Five steps",
+   "steps": [
+    {
+     "title": "Bring the data",
+     "body": "Open datasets with a source and a retrieval date.",
+     "icon": "database"
+    },
+    {
+     "title": "Write the spec",
+     "body": "Blocks, not pixels: hero stat, chart, timeline, locator.",
+     "icon": "book"
+    },
+    {
+     "title": "Measure the text",
+     "body": "Real font metrics decide every line break.",
+     "icon": "gear"
+    },
+    {
+     "title": "Solve the layout",
+     "body": "Grid, safe areas and a fit loop; nothing overlaps.",
+     "icon": "building"
+    },
+    {
+     "title": "Emit SVG, then PNG",
+     "body": "16:9 and 9:16 frames from the same bytes.",
+     "icon": "chart"
+    }
+   ]
+  },
+  {
+   "type": "comparison",
+   "id": "versus",
+   "span": 8,
+   "title": "Against an image-generation model",
+   "columns": [
+    {
+     "heading": "Generated image",
+     "tone": "inkMuted",
+     "items": [
+      {
+       "text": "Different picture on every run",
+       "good": false
+      },
+      {
+       "text": "Text is drawn pixels and can be misspelled",
+       "good": false
+      },
+      {
+       "text": "No sources; numbers cannot be traced",
+       "good": false
+      },
+      {
+       "text": "Fixed pixel size",
+       "good": false
+      }
+     ]
+    },
+    {
+     "heading": "Deterministic render",
+     "tone": "accent",
+     "items": [
+      {
+       "text": "Same spec, same bytes",
+       "good": true
+      },
+      {
+       "text": "Every glyph from a shipped font",
+       "good": true
+      },
+      {
+       "text": "Data provenance and spec digest embedded",
+       "good": true
+      },
+      {
+       "text": "Vector: any size, 16:9 or 9:16",
+       "good": true
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "type": "callout",
+   "id": "honest",
+   "span": 4,
+   "tone": "accent2",
+   "icon": "warning",
+   "title": "What it does not do",
+   "text": "It does not paint scenes. Illustration is drawn from a small icon set; a generated illustration can be supplied as a separate, labelled asset."
+  },
+  {
+   "type": "sources",
+   "id": "sources",
+   "dock": "bottom",
+   "columns": 1,
+   "items": [
+    "Engine: chart-specification-rendering-service, src/infographic. Fonts: Noto Sans and Noto Serif (SIL OFL 1.1)."
+   ]
+  }
+ ]
+}

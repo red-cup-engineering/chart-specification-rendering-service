@@ -142,3 +142,42 @@ to also run the package's own `declareOffer` over each offer.
 - PNG is a CLI convenience over a host `rsvg-convert`, not a service guarantee.
 - Hatching is SVG-only and has one pattern geometry (4px, 45 degrees); only its color is parameterized.
 - The edge/`node` runtime in the offers is declared `node`: the dependency chain is Vega's.
+
+## Infographics (`./infographic`)
+
+A second face of this package: a **declarative, deterministic infographic engine**. A JSON spec (hero stat, stats cards, charts, comparison, timeline, process, callout, prose, locator map, sources) goes in; a byte-reproducible SVG and a layout report come out, with PNG video frames (16:9, 9:16) from the same bytes. No generative model is in the render path, and the engine reads no clock, randomness, environment, network or installed font (a test greps for it).
+
+~~~js
+import { renderInfographic, validateSpec } from "@red-cup-engineering/chart-specification-rendering-service/infographic";
+const { svg, sha256, report, warnings } = renderInfographic(spec); // spec: examples/specs/*.json, schema: ./infographic/schema
+~~~
+
+~~~sh
+infographic render examples/specs/climate-duluth-landscape.json --out out --png 1080p-16x9   # SVG + report + PNG
+infographic score  examples/specs/*.json --out out                                           # rubric score per spec
+infographic check  examples/specs/*.json --out out                                           # exit 3 if a committed SVG is stale
+infographic compare --manifest data/benchmark/notebooklm-benchmark.json --files-root <dir> --scores out/a.score.json --out cmp
+~~~
+
+### renderInfographic
+
+~~~js
+export function renderInfographic(spec, { textMode }) // -> { svg, sha256, bytes, report, warnings, specDigest }
+~~~
+
+- Refusals: `TypeError` when the spec fails `infographic-spec.schema.json` or a cross-field rule (the message names the JSON paths); `RangeError` for an unknown theme or canvas preset.
+- Precondition: `spec.version` is 1; every data block should declare `provenance`.
+- Postcondition: `svg` is a complete SVG document ending in one newline; the same spec always gives the same bytes (object key order is irrelevant: the spec digest is over canonical JSON). Text is measured with real advance widths and GPOS kerning from the embedded Noto subsets, broken by a minimum-raggedness dynamic program with hyphenation, and drawn as outlined glyphs (`textMode: "outline"`, default: identical in every renderer, no fonts needed) or live `<text>` (`"live"`). The root carries `role="img"`, `lang`, `<title>`, a `<desc>` that includes all text in reading order, `role="heading"` on headings, and a `<metadata>` block with the spec digest, scale, theme, fonts and any non-observed data. Data that is not `observed` (`derived`, `model`, `fixture`, `illustrative`) is badged on the graphic itself.
+- Fit: content is laid out on a 12-column grid inside a safe area; a fit loop lowers the scale from 1.0 to `canvas.minScale` (0.9: the smallest text stays at or above 1.5% of the short side). If content still does not fit, the render completes and `warnings` and `report.fits === false` say by how much; nothing is silently clipped. `infographic render --strict` refuses on any warning.
+- Preserved frame: the spec is cloned, never modified; nothing outside the request is read except the shipped fonts.
+- Effect class: pure compute. Witness: `test/infographic.test.mjs` (golden digests for four examples, cross-process determinism under other `TZ`/`LANG`, no-clock source grep, kerning and line-breaking, contrast of themes, schema refusals, overflow reporting, scorer defect detection, CLI exit codes).
+
+### Quality rubric and benchmark
+
+`src/infographic/score.mjs` defines quality as eleven measures a script computes (text fit, collisions, alignment, grid, type hierarchy, legibility, WCAG contrast, density, accessibility, determinism, provenance); see `lib/agency/skills/score-infographic/references/rubric.md`. `infographic compare` sets those scores beside pixel descriptors and a reviewer audit of NotebookLM infographics (`data/benchmark/`). Pixel descriptors are not scores, and audited values are labelled as judgment; a composite that mixes them is deliberately not computed.
+
+PNG frames come from `rsvg-convert` (stable on one host and version; the SVG digest is the identity). Fonts are Noto Sans and Noto Serif Bold, SIL OFL 1.1, subset by `scripts/build-infographic-fonts.py` (`src/infographic/fonts/OFL.txt`). Example data: NOAA NCEI nClimDiv (Minnesota climate division 3) and NASA GISTEMP v4, committed under `data/climate/` with retrieval dates; the Minnesota outline is a simplified US Census boundary (`data/geo/`).
+
+### Work method
+
+The infographic duty, its four skills and the two runbooks (`commission-an-infographic`, `re-benchmark-against-ai-infographics`) are in `lib/agency/`; open debts are in `data/records/system-debt-records/`. They are proposed instances: no governance act is claimed and the owning section is an open decision.
