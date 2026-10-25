@@ -10,8 +10,8 @@ import { renderChartSpecifications } from "@red-cup-engineering/chart-specificat
 import { here } from "./helpers.mjs";
 
 const GOLDEN = {
-  "captive-birth-share-by-decade": "ni:///sha-256;uB-BPuAyRrGJl1QKzgTXDyaGIieMRkFdmjqRPFPvIew",
-  "net-migration-share-of-growth": "ni:///sha-256;fWgoGGqWeKfGDTbOsBqhV4paNu2BwDYl_NjCxr9FSK4",
+  "captive-birth-share-by-decade": "ni:///sha-256;waGoi0KBeI-pY_4bC81VFbirtw0WIqMhpp85A6o52pU",
+  "net-migration-share-of-growth": "ni:///sha-256;6CAMNjXYNoF8IGJnnyz8XcOUA32Kogn7EaprpUBX5K0",
 };
 
 async function render() {

@@ -66,7 +66,7 @@
     {
       "key": "default",
       "title": "Validate a Vega-Lite chart spec",
-      "description": "Check a Vega-Lite v5 specification against the pinned vega-lite JSON schema and by compiling it, returning schema issues, compile errors and compiler warnings as data without reading any data file.",
+      "description": "Check a Vega-Lite v5 or v6 specification against the pinned vega-lite JSON schema and by compiling it, returning schema issues, compile errors and compiler warnings as data without reading any data file.",
       "tags": [
         "chart",
         "vega-lite",
@@ -135,7 +135,7 @@
     "properties": {
       "spec": {
         "type": "object",
-        "description": "A Vega-Lite v5 specification (JSON)."
+        "description": "A Vega-Lite v5 or v6 specification (JSON)."
       }
     }
   },

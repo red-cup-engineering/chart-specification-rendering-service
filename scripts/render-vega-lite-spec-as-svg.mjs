@@ -5,13 +5,13 @@ import { runCommand } from "./chart-face.mjs";
 /** The operation definition the command runner and the market-offer deriver bind: schemas plus the function. */
 export const operation = {
   name: "renderVegaLiteSpecAsSvg",
-  description: "Renders a Vega-Lite v5 chart specification to byte-reproducible SVG, headless and offline: data is inline or read from a supplied file map, never from the network; the SVG carries title, description and ARIA wiring, keeps text as text, and defines url(#hatch-rrggbb) fills as SVG patterns.",
+  description: "Renders a Vega-Lite v5 or v6 chart specification to byte-reproducible SVG, headless and offline: data is inline or read from a supplied file map, never from the network; the SVG carries title, description and ARIA wiring, keeps text as text, and defines url(#hatch-rrggbb) fills as SVG patterns.",
   inputSchema: {
     type: "object",
     required: ["spec"],
     additionalProperties: false,
     properties: {
-      spec: { type: "object", description: "A Vega-Lite v5 specification (JSON)." },
+      spec: { type: "object", description: "A Vega-Lite v5 or v6 specification (JSON)." },
       data: {
         type: ["object", "array"],
         description: "Either an array of rows (inline data for a spec with no top-level data) or a map of root-relative path to file text (or JSON value) that the spec's data.url values resolve to.",
@@ -35,7 +35,7 @@ export const operation = {
 };
 
 /**
- * Renders a Vega-Lite v5 spec to SVG. The same request always yields the same bytes.
+ * Renders a Vega-Lite v5 or v6 spec to SVG. The same request always yields the same bytes.
  * @param {{spec: object, data?: object | object[], baseUrl?: string}} request
  * @returns {Promise<{svg: string, ni: string, size: number, mediaType: string, warnings: string[]}>}
  * @throws {TypeError} When the request is malformed, the spec does not compile, a url is absolute, has a scheme or leaves the root, a read file is not supplied, or a file cannot be parsed.

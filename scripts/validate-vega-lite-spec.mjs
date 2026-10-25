@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 import { validateJsonSchema } from "@red-cup-engineering/json-schema-services-section/validation";
-import vegaLiteSchema from "vega-lite/build/vega-lite-schema.json" with { type: "json" };
+import vegaLiteSchema from "vega-lite/vega-lite-schema.json" with { type: "json" };
 import { assertKeys, assertPlainObject, assertSpec, compileVegaLite } from "./vega-render.mjs";
 import { runCommand } from "./chart-face.mjs";
 
@@ -9,12 +9,12 @@ const MAX_ISSUES = 50;
 /** The operation definition the command runner and the market-offer deriver bind: schemas plus the function. */
 export const operation = {
   name: "validateVegaLiteSpec",
-  description: "Validates a Vega-Lite v5 specification against the vega-lite JSON schema shipped with the pinned vega-lite, then compiles it, reporting schema issues, compile errors and compiler warnings as data.",
+  description: "Validates a Vega-Lite v5 or v6 specification against the vega-lite JSON schema shipped with the pinned vega-lite, then compiles it, reporting schema issues, compile errors and compiler warnings as data.",
   inputSchema: {
     type: "object",
     required: ["spec"],
     additionalProperties: false,
-    properties: { spec: { type: "object", description: "A Vega-Lite v5 specification (JSON)." } },
+    properties: { spec: { type: "object", description: "A Vega-Lite v5 or v6 specification (JSON)." } },
   },
   outputSchema: {
     type: "object",

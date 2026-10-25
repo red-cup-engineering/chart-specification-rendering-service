@@ -7,7 +7,7 @@
 [![Tips welcome](https://img.shields.io/badge/tips-welcome-d4a017)](https://github.com/561-group/.github/blob/main/TIPS.md)
 <!-- 561-group-standards:badges:end -->
 
-Renders [Vega-Lite](https://vega.github.io/vega-lite/) (v5) chart specifications to
+Renders [Vega-Lite](https://vega.github.io/vega-lite/) (v5 or v6) chart specifications to
 **byte-reproducible SVG**, headless and offline. A research paper keeps its figures as
 *data* (a Vega-Lite JSON file beside the CSVs it plots) in its Science repository; this
 generic Engineering service is the devDependency that turns them into pictures. The house
@@ -15,7 +15,7 @@ rule `science-engineering-operations-parameterize-in-order` keeps executable cod
 Science repositories; a figure that is a `.vl.json` file is not code.
 
 Intended seat in the Group tree: `computer-media-engineering-services-section`, beside the
-other content services. The pinned engines are `vega` 5.33.1 and `vega-lite` 5.23.0 (exact
+other content services. The pinned engines are `vega` 6.4.0 and `vega-lite` 6.5.0 (exact
 pins; no canvas, no browser, no network).
 
 Three operations. Each is an effect-bounded command that reads one JSON value per input
@@ -33,7 +33,7 @@ export async function renderVegaLiteSpecAsSvg({ spec, data, baseUrl }) // -> { s
 ~~~
 
 - Refusals: `TypeError` for a malformed request, an unknown key, a spec that does not compile (Vega-Lite's own message), a `url` that has a scheme (`https:`, `file:`, `data:`), is absolute, contains a backslash, or resolves above the root; a `data` key that is not a relative path; `data` rows supplied inline for a spec that already has top-level `data`; a `url` the file map does not supply (every missing path is named); or a data file that cannot be parsed (never rendered as an empty chart). `RangeError` for a spec over 1 MiB, a numeric `width` or `height` outside 0..20000, data files totalling over 16 MiB, or an SVG over 16 MiB.
-- Precondition: `spec` is a Vega-Lite v5 object. `data` is either an array of rows (inline data for a spec with no top-level `data`) or a map of root-relative path to file text (or a JSON value, serialized with `JSON.stringify`); `baseUrl` is the root-relative directory the spec's relative `url`s resolve against (the directory the spec file lives in; default: the root).
+- Precondition: `spec` is a Vega-Lite v5 or v6 object. `data` is either an array of rows (inline data for a spec with no top-level `data`) or a map of root-relative path to file text (or a JSON value, serialized with `JSON.stringify`); `baseUrl` is the root-relative directory the spec's relative `url`s resolve against (the directory the spec file lives in; default: the root).
 - Postcondition: `svg` is a complete SVG document ending in one newline; `ni` is the RFC 6920 name of its UTF-8 bytes (`ni:///sha-256;…`, from the house `content-address`), `size` their length and `mediaType` `image/svg+xml`; the same request always gives the same bytes. Text stays `<text>`; the root carries `role="img"`, a `<title>` (from `spec.title`) and `<desc>` (from `spec.description`) wired by `aria-labelledby`/`aria-describedby`; `url(#hatch-rrggbb)` fills are defined as `<pattern>`s (see Hatching). `warnings` holds Vega-Lite compiler and renderer warnings in emission order, plus one when the spec has no `description`.
 - Preserved frame: the spec and data are not modified (the spec is cloned before its urls are resolved); nothing outside the request is read.
 - Effect class: deterministic compute, no I/O. Renders run one at a time in one process and, while rendering, set `process.env.TZ` to `UTC` and seed Vega's random source (both restored or reseeded each time), because Vega's time scales and `jitter`/`sample` transforms read process-wide state.
@@ -137,7 +137,8 @@ to also run the package's own `declareOffer` over each offer.
 
 ## Limitations
 
-- Vega-Lite v5 only. Vega-Lite 6 and raw Vega specs are not accepted by the operations.
+- Vega-Lite specs only (v5 and v6 are accepted, rendered by Vega-Lite 6); raw Vega specs are not accepted by the operations.
+- Specs are untrusted input and Vega evaluates their expressions: the pinned `vega` 6.4.0 (vega-expression 6.2.2, vega-functions 6.2.0) contains the fixes for the expression `toString`/`constructor` abuses and the `setdata` XSS advisories (vega < 6.2.0, vega-expression < 5.2.1, vega-functions <= 6.1.0), and `test/untrusted-expressions.test.mjs` pins that malicious expressions are refused or rendered inert.
 - Text measurement is an estimate (Helvetica metrics), so a chart set in a much wider or narrower font than the stack resolves to can have slightly loose or tight axis padding, and `labelOverlap` decisions use the estimate.
 - Because renders are serialized and briefly set `process.env.TZ`, other code in the same process that formats dates during a render sees UTC. Run the service in its own process if that matters.
 - `data` is a file map; there is no remote or glob loading by design. Images in image marks cannot be loaded (any URL is refused); use inline paths or shapes.
