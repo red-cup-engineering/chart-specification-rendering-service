@@ -6,27 +6,29 @@ import { join } from "node:path";
 import { renderVegaLiteSpecAsSvg } from "@red-cup-engineering/chart-specification-rendering-service/render-vega-lite-spec-as-svg";
 import { barSpec, hatchedSpec, root } from "./helpers.mjs";
 
-test("renders a described spec to an SVG whose sha256 and bytes are those of its UTF-8 text", async () => {
+test("renders a described spec to an SVG whose ni address, size and media type are those of its UTF-8 text", async () => {
   const result = await renderVegaLiteSpecAsSvg({ spec: barSpec() });
   assert.ok(result.svg.startsWith("<svg "));
   assert.ok(result.svg.endsWith("</svg>\n"));
-  assert.equal(result.sha256, createHash("sha256").update(result.svg, "utf8").digest("hex"));
-  assert.equal(result.bytes, Buffer.byteLength(result.svg, "utf8"));
+  assert.equal(result.ni, `ni:///sha-256;${createHash("sha256").update(result.svg, "utf8").digest("base64url")}`);
+  assert.equal(result.size, Buffer.byteLength(result.svg, "utf8"));
+  assert.equal(result.mediaType, "image/svg+xml");
+  assert.equal(result.sha256, undefined);
   assert.deepEqual(result.warnings, []);
 });
 
 test("determinism: two renders in one process are byte-identical", async () => {
   const [a, b] = [await renderVegaLiteSpecAsSvg({ spec: barSpec() }), await renderVegaLiteSpecAsSvg({ spec: barSpec() })];
   assert.equal(a.svg, b.svg);
-  assert.equal(a.sha256, b.sha256);
+  assert.equal(a.ni, b.ni);
 });
 
 test("determinism: concurrent renders equal sequential renders, whatever the order", async () => {
   const specs = [barSpec(), hatchedSpec(), barSpec({ title: "Other" })];
   const sequential = [];
-  for (const spec of specs) sequential.push((await renderVegaLiteSpecAsSvg({ spec })).sha256);
+  for (const spec of specs) sequential.push((await renderVegaLiteSpecAsSvg({ spec })).ni);
   const concurrent = await Promise.all([...specs].reverse().map((spec) => renderVegaLiteSpecAsSvg({ spec })));
-  assert.deepEqual(concurrent.map((result) => result.sha256).reverse(), sequential);
+  assert.deepEqual(concurrent.map((result) => result.ni).reverse(), sequential);
 });
 
 test("determinism: separate processes, with different time zones, locales and clocks, agree byte for byte", () => {
@@ -38,7 +40,7 @@ test("determinism: separate processes, with different time zones, locales and cl
   };
   const first = run({ TZ: "UTC", LANG: "C" });
   assert.equal(run({ TZ: "Pacific/Auckland", LANG: "de_DE.UTF-8", LC_ALL: "de_DE.UTF-8" }), first);
-  assert.equal(JSON.parse(first).sha256.length, 64);
+  assert.match(JSON.parse(first).ni, /^ni:\/\/\/sha-256;[A-Za-z0-9_-]{43}$/u);
 });
 
 test("temporal axes render the same in any host time zone: renders pin UTC and restore the host zone", async () => {

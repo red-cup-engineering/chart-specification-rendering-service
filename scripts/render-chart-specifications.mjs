@@ -29,7 +29,7 @@ function readInside(root, relativePath, label) {
  * Renders spec files under a repository root to SVG files. Reads only the spec files and the data files they
  * reference by relative `url`, all confined to the real path of the root.
  * @param {{root: string, specs: string[], out?: string, check?: boolean, png?: boolean}} request
- * @returns {Promise<{results: {spec: string, svg: string, sha256: string, bytes: number, status: string, warnings: string[]}[], stale: number}>}
+ * @returns {Promise<{results: {spec: string, svg: string, ni: string, size: number, mediaType: string, status: string, warnings: string[]}[], stale: number}>}
  * @throws {TypeError} When no spec is given, a spec is not inside the root, a spec is not JSON, a referenced file is missing or outside the root, or the spec is refused by renderVegaLiteSpecAsSvg.
  */
 export async function renderChartSpecifications({ root, specs, out, check = false, png = false }) {
@@ -65,7 +65,7 @@ export async function renderChartSpecifications({ root, specs, out, check = fals
       const converted = spawnSync("rsvg-convert", ["--zoom", "2", "--format", "png", "--output", svgPath.replace(/\.svg$/u, ".png"), svgPath], { encoding: "utf8" });
       if (converted.error || converted.status !== 0) throw new TypeError(`--png needs rsvg-convert on PATH: ${converted.error?.message ?? converted.stderr}`);
     }
-    results.push({ spec: specRelative, svg: relative(realRoot, svgPath).split(sep).join("/"), sha256: rendered.sha256, bytes: rendered.bytes, status, warnings: rendered.warnings });
+    results.push({ spec: specRelative, svg: relative(realRoot, svgPath).split(sep).join("/"), ni: rendered.ni, size: rendered.size, mediaType: rendered.mediaType, status, warnings: rendered.warnings });
   }
   return { results, stale: results.filter((result) => result.status === "stale").length };
 }

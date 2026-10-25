@@ -32,7 +32,7 @@ test("renders <name>.svg beside the spec, reads data relative to the spec, and i
     assert.equal(text.length, readFileSync(join(dir, "figures", "two-bars.svg")).length);
     const second = JSON.parse(run(["--root", dir, "figures/two-bars.vl.json"]).stdout);
     assert.equal(second.status, "unchanged");
-    assert.equal(second.sha256, result.sha256);
+    assert.equal(second.ni, result.ni);
   } finally { rmSync(dir, { recursive: true, force: true }); }
 });
 

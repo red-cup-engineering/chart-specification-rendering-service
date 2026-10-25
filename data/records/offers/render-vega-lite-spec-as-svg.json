@@ -14,8 +14,9 @@
       "type": "object",
       "required": [
         "svg",
-        "sha256",
-        "bytes",
+        "ni",
+        "size",
+        "mediaType",
         "warnings"
       ],
       "additionalProperties": false,
@@ -24,14 +25,19 @@
           "type": "string",
           "description": "The SVG document text."
         },
-        "sha256": {
+        "ni": {
           "type": "string",
-          "pattern": "^[0-9a-f]{64}$",
-          "description": "SHA-256 of the UTF-8 bytes of svg."
+          "pattern": "^ni:///sha-256;[A-Za-z0-9_-]{43}$",
+          "description": "The RFC 6920 name of the UTF-8 bytes of svg."
         },
-        "bytes": {
+        "size": {
           "type": "integer",
-          "minimum": 1
+          "minimum": 1,
+          "description": "The UTF-8 byte length of svg."
+        },
+        "mediaType": {
+          "type": "string",
+          "const": "image/svg+xml"
         },
         "warnings": {
           "type": "array",
@@ -44,8 +50,9 @@
     },
     "example": {
       "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" xmlns:xlink=\"http://www.w3.org/1999/xlink\" version=\"1.1\" class=\"marks\" width=\"110\" height=\"70\" viewBox=\"0 0 110 70\" role=\"img\" aria-labelledby=\"vl-f53d12b8-desc\"><desc id=\"vl-f53d12b8-desc\">Two bars: a is 3, b is 5.</desc><rect width=\"110\" height=\"70\" fill=\"white\"/><g fill=\"none\" stroke-miterlimit=\"10\" transform=\"translate(5,5)\"><g class=\"mark-group role-frame root\" role=\"graphics-object\" aria-roledescription=\"group mark container\"><g transform=\"translate(0,0)\"><path class=\"background\" aria-hidden=\"true\" d=\"M0.5,0.5h100v60h-100Z\" stroke=\"#ddd\"/><g><g class=\"mark-rect role-mark marks\" role=\"graphics-object\" aria-roledescription=\"rect mark container\"><path aria-label=\"k: a; v: 3\" role=\"graphics-symbol\" aria-roledescription=\"bar\" d=\"M2.5,24h45v36h-45Z\" fill=\"#4c78a8\"/><path aria-label=\"k: b; v: 5\" role=\"graphics-symbol\" aria-roledescription=\"bar\" d=\"M52.5,0h45v60h-45Z\" fill=\"#4c78a8\"/></g></g><path class=\"foreground\" aria-hidden=\"true\" d=\"\" display=\"none\"/></g></g></g></svg>\n",
-      "sha256": "7ba0e5a7a1ed3bf40a418df08e76857905d143d73e5436158d4fa89948d9db2b",
-      "bytes": 1027,
+      "ni": "ni:///sha-256;e6Dlp6HtO_QKQY3wjnaFeQXRQ9c-VDYVjU-omUjZ2ys",
+      "size": 1027,
+      "mediaType": "image/svg+xml",
       "warnings": []
     }
   },
@@ -53,7 +60,7 @@
     {
       "key": "default",
       "title": "Render a Vega-Lite chart to SVG",
-      "description": "Render a Vega-Lite v5 chart specification, with its data supplied inline or as files, to a byte-reproducible accessible SVG: the same request always yields the same bytes and sha256; text stays text; hatched fills and title/description are built in. Offline and deterministic, so a figure can live as data and be rebuilt anywhere.",
+      "description": "Render a Vega-Lite v5 chart specification, with its data supplied inline or as files, to a byte-reproducible accessible SVG: the same request always yields the same bytes and ni: content address; text stays text; hatched fills and title/description are built in. Offline and deterministic, so a figure can live as data and be rebuilt anywhere.",
       "tags": [
         "chart",
         "vega-lite",

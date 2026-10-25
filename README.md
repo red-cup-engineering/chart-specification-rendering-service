@@ -29,12 +29,12 @@ is the repository CLI.
 ### renderVegaLiteSpecAsSvg
 
 ~~~js
-export async function renderVegaLiteSpecAsSvg({ spec, data, baseUrl }) // -> { svg, sha256, bytes, warnings }
+export async function renderVegaLiteSpecAsSvg({ spec, data, baseUrl }) // -> { svg, ni, size, mediaType, warnings }
 ~~~
 
 - Refusals: `TypeError` for a malformed request, an unknown key, a spec that does not compile (Vega-Lite's own message), a `url` that has a scheme (`https:`, `file:`, `data:`), is absolute, contains a backslash, or resolves above the root; a `data` key that is not a relative path; `data` rows supplied inline for a spec that already has top-level `data`; a `url` the file map does not supply (every missing path is named); or a data file that cannot be parsed (never rendered as an empty chart). `RangeError` for a spec over 1 MiB, a numeric `width` or `height` outside 0..20000, data files totalling over 16 MiB, or an SVG over 16 MiB.
 - Precondition: `spec` is a Vega-Lite v5 object. `data` is either an array of rows (inline data for a spec with no top-level `data`) or a map of root-relative path to file text (or a JSON value, serialized with `JSON.stringify`); `baseUrl` is the root-relative directory the spec's relative `url`s resolve against (the directory the spec file lives in; default: the root).
-- Postcondition: `svg` is a complete SVG document ending in one newline; `sha256` and `bytes` are those of its UTF-8 text; the same request always gives the same bytes. Text stays `<text>`; the root carries `role="img"`, a `<title>` (from `spec.title`) and `<desc>` (from `spec.description`) wired by `aria-labelledby`/`aria-describedby`; `url(#hatch-rrggbb)` fills are defined as `<pattern>`s (see Hatching). `warnings` holds Vega-Lite compiler and renderer warnings in emission order, plus one when the spec has no `description`.
+- Postcondition: `svg` is a complete SVG document ending in one newline; `ni` is the RFC 6920 name of its UTF-8 bytes (`ni:///sha-256;…`, from the house `content-address`), `size` their length and `mediaType` `image/svg+xml`; the same request always gives the same bytes. Text stays `<text>`; the root carries `role="img"`, a `<title>` (from `spec.title`) and `<desc>` (from `spec.description`) wired by `aria-labelledby`/`aria-describedby`; `url(#hatch-rrggbb)` fills are defined as `<pattern>`s (see Hatching). `warnings` holds Vega-Lite compiler and renderer warnings in emission order, plus one when the spec has no `description`.
 - Preserved frame: the spec and data are not modified (the spec is cloned before its urls are resolved); nothing outside the request is read.
 - Effect class: deterministic compute, no I/O. Renders run one at a time in one process and, while rendering, set `process.env.TZ` to `UTC` and seed Vega's random source (both restored or reseeded each time), because Vega's time scales and `jitter`/`sample` transforms read process-wide state.
 - Witness: byte-identical renders in one process, concurrently, and across processes under different `TZ`, `LANG` and `LC_ALL`; a golden hash for each paper figure; refusal tests for every network, absolute, scheme and escaping url, with `fetch` mocked to prove nothing is fetched.
@@ -107,13 +107,15 @@ Output bytes are a function of the request alone:
   `node-canvas` cannot change the output.
 - **No clock, no randomness, no host zone.** No timestamp is written. Vega's random source
   is seeded (561) per render and `TZ` is pinned to `UTC` during it.
-- **Ids.** Vega's `clipN`/`gradient_N` ids are prefixed with `vl-<first 8 hex of the SVG's sha256>`
+- **Ids.** Vega's `clipN`/`gradient_N` ids are prefixed with `vl-<first 8 hex of the SVG's sha256>` (the house `cryptographic-integrity-service`)
   so several figures inlined into one HTML page cannot clip each other; `<title>`/`<desc>`
   ids carry the same prefix.
 - **Ordering.** Data files are read in sorted order; hatch patterns are sorted; warnings are
   de-duplicated in emission order.
 - **Defaults under the spec.** `DEFAULT_CONFIG` (`font`, white `background`) is merged
   under the spec's own `config`, so any spec can override it.
+
+The post-process (ids, `<title>`/`<desc>`/ARIA, hatch `<defs>`) is a set of edits to the SVG's XML tree, read and written by `@red-cup-engineering/xml-document-rendering-service`, so attribute values are escaped by its serializer (an apostrophe in an attribute is `&#39;`).
 
 Upgrading `vega` or `vega-lite` can change bytes; the golden hashes in
 `test/paper-figures.test.mjs` are updated deliberately, after looking at the figures.

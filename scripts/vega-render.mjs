@@ -1,6 +1,9 @@
 // The deterministic Vega-Lite -> SVG core shared by the operations. Nothing here touches the network, the
 // filesystem, the clock or ambient randomness: every byte of output is a function of the request.
-import { createHash } from "node:crypto";
+import { addressContent } from "@red-cup-engineering/computer-content-address-engineering-services-section/content-address";
+import { sha256Hex } from "@red-cup-engineering/cryptographic-integrity-service";
+import { element, serialize } from "@red-cup-engineering/xml-document-rendering-service/core";
+import { readXmlDocument } from "@red-cup-engineering/xml-document-rendering-service/document-read";
 import { posix } from "node:path";
 import * as vega from "vega";
 import * as vegaLite from "vega-lite";
@@ -203,49 +206,69 @@ function descriptionText(description) {
   return typeof description === "string" ? description : "";
 }
 
-const escapeXml = (text) => text.replace(/&/gu, "&amp;").replace(/</gu, "&lt;").replace(/>/gu, "&gt;").replace(/"/gu, "&quot;");
+const PREFIXED_ID = /^(?:clip\d+|gradient_\d+)$/u;
+const PREFIXED_REFERENCE = /url\(#((?:clip\d+|gradient_\d+))\)/gu;
+const READ_LIMITS = Object.freeze({ maximumNodes: 2_000_000, maximumAttributes: 8_000_000 });
 
 function hatchPattern(color) {
-  return `<pattern id="hatch-${color}" width="4" height="4" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">`
-    + `<line x1="0" y1="0" x2="0" y2="4" stroke="#${color}" stroke-width="1.4"/></pattern>`;
+  return element("pattern", { id: `hatch-${color}`, width: "4", height: "4", patternUnits: "userSpaceOnUse", patternTransform: "rotate(45)" }, [
+    element("line", { x1: "0", y1: "0", x2: "0", y2: "4", stroke: `#${color}`, "stroke-width": "1.4" }),
+  ]);
+}
+
+/** Every element below `node`, in document order. */
+function* descendants(node) {
+  for (const child of node.children ?? []) {
+    if (child.kind !== "element") continue;
+    yield child;
+    yield* descendants(child);
+  }
 }
 
 /**
- * The deterministic post-process: namespace Vega's per-render ids, add <title>/<desc> and the ARIA wiring,
- * and define each `url(#hatch-rrggbb)` fill the chart uses as an SVG <pattern> in a <defs> block.
+ * The deterministic post-process, as edits to the SVG's XML tree (house xml-document-rendering-service):
+ * namespace Vega's per-render ids, add <title>/<desc> and the ARIA wiring, and define each
+ * `url(#hatch-rrggbb)` fill the chart uses as an SVG <pattern> in a <defs> block.
  */
 export function finishSvg(svg, spec, warnings) {
-  const open = svg.indexOf("<svg");
-  const close = svg.indexOf(">", open);
-  if (open !== 0 || close < 0) throw new RangeError("Vega produced no <svg> element");
-  const prefix = `vl-${createHash("sha256").update(svg).digest("hex").slice(0, 8)}`;
-  let head = svg.slice(0, close);
-  let body = svg.slice(close + 1);
-  body = body.replace(/\bid="((?:clip\d+|gradient_\d+))"/gu, `id="${prefix}-$1"`).replace(/url\(#((?:clip\d+|gradient_\d+))\)/gu, `url(#${prefix}-$1)`);
+  if (!svg.startsWith("<svg") || svg.indexOf(">") < 0) throw new RangeError("Vega produced no <svg> element");
+  const prefix = `vl-${sha256Hex(svg).slice(0, 8)}`;
+  const root = readXmlDocument(svg, READ_LIMITS).children.find((node) => node.kind === "element");
+  const body = [...descendants(root)];
+  const references = [];
+  const ids = new Set();
+  for (const node of body) {
+    for (const [name, value] of Object.entries(node.attributes)) {
+      if (name === "id" && PREFIXED_ID.test(value)) node.attributes[name] = `${prefix}-${value}`;
+      else node.attributes[name] = value.replace(PREFIXED_REFERENCE, `url(#${prefix}-$1)`);
+      if (name === "id") ids.add(node.attributes[name]);
+      for (const match of node.attributes[name].matchAll(/url\(#([^)]+)\)/gu)) references.push(match[1]);
+    }
+  }
 
   const inserted = [];
+  const wiring = {};
   const title = titleText(spec.title);
   const description = descriptionText(spec.description);
   if (description === "") warnings.push("spec has no description: the SVG carries no accessible description");
-  const labelled = [];
-  if (title !== "") { inserted.push(`<title id="${prefix}-title">${escapeXml(title)}</title>`); labelled.push(` aria-labelledby="${prefix}-title"`); }
+  if (title !== "") { inserted.push(element("title", { id: `${prefix}-title` }, [title])); wiring["aria-labelledby"] = `${prefix}-title`; }
   if (description !== "") {
-    inserted.push(`<desc id="${prefix}-desc">${escapeXml(description)}</desc>`);
-    labelled.push(title === "" ? ` aria-labelledby="${prefix}-desc"` : ` aria-describedby="${prefix}-desc"`);
+    inserted.push(element("desc", { id: `${prefix}-desc` }, [description]));
+    wiring[title === "" ? "aria-labelledby" : "aria-describedby"] = `${prefix}-desc`;
   }
 
-  const colors = [...new Set([...body.matchAll(HATCH_REFERENCE)].map((match) => match[1]))].sort();
-  if (colors.length > 0) inserted.push(`<defs>${colors.map(hatchPattern).join("")}</defs>`);
+  const colors = [...new Set(references.flatMap((reference) => [...`url(#${reference})`.matchAll(HATCH_REFERENCE)].map((match) => match[1])))].sort();
+  if (colors.length > 0) inserted.push(element("defs", {}, colors.map(hatchPattern)));
 
-  const defined = new Set([...body.matchAll(/\bid="([^"]+)"/gu)].map((match) => match[1]));
-  for (const color of colors) defined.add(`hatch-${color}`);
-  for (const match of body.matchAll(/url\(#([^)]+)\)/gu)) {
-    if (!defined.has(match[1])) warnings.push(`fill or clip reference url(#${match[1]}) is not defined in the SVG; hatch fills must be named url(#hatch-rrggbb)`);
+  for (const color of colors) ids.add(`hatch-${color}`);
+  for (const reference of references) {
+    if (!ids.has(reference)) warnings.push(`fill or clip reference url(#${reference}) is not defined in the SVG; hatch fills must be named url(#hatch-rrggbb)`);
   }
 
-  if (labelled.length > 0 && !/\brole=/u.test(head)) head += ` role="img"`;
-  head += labelled.join("");
-  return `${head}>${inserted.join("")}${body}`;
+  if (Object.keys(wiring).length > 0 && !Object.hasOwn(root.attributes, "role")) root.attributes.role = "img";
+  Object.assign(root.attributes, wiring);
+  root.children = [...inserted, ...root.children];
+  return serialize(root);
 }
 
 // Vega keeps process-wide state (the random source, the time zone its time scales read) and renders from
@@ -290,8 +313,10 @@ export function renderBoundSpec(spec, files) {
   });
 }
 
+/** The SVG text with its house content address: { svg, ni, size, mediaType } (RFC 6920 name of the UTF-8 bytes). */
 export function describeSvg(svg) {
-  return { svg, sha256: createHash("sha256").update(svg, "utf8").digest("hex"), bytes: Buffer.byteLength(svg, "utf8") };
+  const { ni, size, mediaType } = addressContent(new TextEncoder().encode(svg), { mediaType: "image/svg+xml" });
+  return { svg, ni, size, mediaType };
 }
 
 export { vegaLite };

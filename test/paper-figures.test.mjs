@@ -1,5 +1,5 @@
 // The two figures of the white-repopulation paper, kept as Vega-Lite data and rebuilt here from copies of
-// its derived CSVs and source-series record. Golden hashes pin the pinned vega/vega-lite; when either is
+// its derived CSVs and source-series record. Golden ni: addresses pin the pinned vega/vega-lite; when either is
 // bumped on purpose, re-render, look at the figures, and update them.
 import test from "node:test";
 import assert from "node:assert/strict";
@@ -10,8 +10,8 @@ import { renderChartSpecifications } from "@red-cup-engineering/chart-specificat
 import { here } from "./helpers.mjs";
 
 const GOLDEN = {
-  "captive-birth-share-by-decade": "8fe5693727c5c71a1ff57eea8d200e0984bed174ab6c9b6cd47ebaccbd8e80bd",
-  "net-migration-share-of-growth": "59f94902bfd479322c3975bc2df984e482806ddc571a7ff91c1ef2df7d8ae4d9",
+  "captive-birth-share-by-decade": "ni:///sha-256;uB-BPuAyRrGJl1QKzgTXDyaGIieMRkFdmjqRPFPvIew",
+  "net-migration-share-of-growth": "ni:///sha-256;fWgoGGqWeKfGDTbOsBqhV4paNu2BwDYl_NjCxr9FSK4",
 };
 
 async function render() {
@@ -24,11 +24,11 @@ async function render() {
   return { results, svgs };
 }
 
-test("both figures render, byte-stable, to their golden hashes", async () => {
+test("both figures render, byte-stable, to their golden ni: addresses", async () => {
   const { results } = await render();
   const again = await render();
-  assert.deepEqual(results.map((result) => result.sha256), again.results.map((result) => result.sha256));
-  assert.deepEqual(Object.fromEntries(results.map((result) => [result.spec.replace(/^figures\/|\.vl\.json$/gu, ""), result.sha256])), GOLDEN);
+  assert.deepEqual(results.map((result) => result.ni), again.results.map((result) => result.ni));
+  assert.deepEqual(Object.fromEntries(results.map((result) => [result.spec.replace(/^figures\/|\.vl\.json$/gu, ""), result.ni])), GOLDEN);
   for (const result of results) assert.deepEqual(result.warnings, []);
 });
 

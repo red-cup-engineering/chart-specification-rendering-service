@@ -24,7 +24,7 @@ test("package.json#x-market is valid against the package market schema", () => {
 test("package is publishable MIT with node >=24.2.0, exports and bins for every operation", () => {
   assert.equal(pkg.private, false);
   assert.equal(pkg.license, "MIT");
-  assert.equal(pkg.version, "0.1.0");
+  assert.equal(pkg.version, "0.2.0");
   assert.equal(pkg.engines.node, ">=24.2.0");
   for (const name of ["render-vega-lite-spec-as-svg", "validate-vega-lite-spec", "render-chart-specifications"]) {
     assert.ok(pkg.exports[`./${name}`], name);

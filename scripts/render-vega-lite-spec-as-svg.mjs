@@ -21,12 +21,13 @@ export const operation = {
   },
   outputSchema: {
     type: "object",
-    required: ["svg", "sha256", "bytes", "warnings"],
+    required: ["svg", "ni", "size", "mediaType", "warnings"],
     additionalProperties: false,
     properties: {
       svg: { type: "string", description: "The SVG document text." },
-      sha256: { type: "string", pattern: "^[0-9a-f]{64}$", description: "SHA-256 of the UTF-8 bytes of svg." },
-      bytes: { type: "integer", minimum: 1 },
+      ni: { type: "string", pattern: "^ni:///sha-256;[A-Za-z0-9_-]{43}$", description: "The RFC 6920 name of the UTF-8 bytes of svg." },
+      size: { type: "integer", minimum: 1, description: "The UTF-8 byte length of svg." },
+      mediaType: { type: "string", const: "image/svg+xml" },
       warnings: { type: "array", items: { type: "string" }, description: "Vega-Lite compiler and renderer warnings, in emission order, without duplicates." },
     },
   },
@@ -36,7 +37,7 @@ export const operation = {
 /**
  * Renders a Vega-Lite v5 spec to SVG. The same request always yields the same bytes.
  * @param {{spec: object, data?: object | object[], baseUrl?: string}} request
- * @returns {Promise<{svg: string, sha256: string, bytes: number, warnings: string[]}>}
+ * @returns {Promise<{svg: string, ni: string, size: number, mediaType: string, warnings: string[]}>}
  * @throws {TypeError} When the request is malformed, the spec does not compile, a url is absolute, has a scheme or leaves the root, a read file is not supplied, or a file cannot be parsed.
  * @throws {RangeError} When the spec exceeds 1 MiB, a dimension is outside 0..20000, the files exceed 16 MiB, or the SVG exceeds 16 MiB.
  */
