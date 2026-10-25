@@ -145,3 +145,12 @@ to also run the package's own `declareOffer` over each offer.
 - PNG is a CLI convenience over a host `rsvg-convert`, not a service guarantee.
 - Hatching is SVG-only and has one pattern geometry (4px, 45 degrees); only its color is parameterized.
 - The edge/`node` runtime in the offers is declared `node`: the dependency chain is Vega's.
+
+## Sold as a Hoare service contract
+
+`data/hoare-service-contracts/` holds this service's contract: the precondition, postcondition, refusals,
+price, stated cost and receipt it is sold under. Every market's form of the service (x402 route and Bazaar
+listing, A2A skill, MCP tool) is derived from it by `derive-hoare-service-markets` in
+`@red-cup-engineering/x402-services-section`; none is authored a second time. The contract stays
+`saleStatus: "held"` until its owner enables the sale. `test/hoare-service-contract.test.mjs` checks that the
+service reproduces the contract's own example and states the refusals it actually has.

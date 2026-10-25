@@ -1,0 +1,365 @@
+{
+  "kind": "org.emsenn.hoare-service-contract.v1",
+  "id": "chart-render-vega-lite-svg",
+  "version": "0.1.0",
+  "name": "Render a Vega-Lite chart to SVG",
+  "summary": "Send a Vega-Lite v5 chart specification, get back byte-reproducible SVG and its SHA-256; the same request always returns the same bytes.",
+  "service": {
+    "gateway": "chart-rendering",
+    "gatewayPackageName": "@red-cup-engineering/chart-specification-rendering-service",
+    "section": "lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-media-engineering-services-section/services/chart-specification-rendering-service",
+    "operation": "render-vega-lite-svg",
+    "origin": "https://market.561.group",
+    "route": "/v1/charts/render-vega-lite-svg",
+    "method": "POST",
+    "category": "data",
+    "runtime": "node",
+    "compute": {
+      "package": "@red-cup-engineering/chart-specification-rendering-service",
+      "subpath": "./render-vega-lite-spec-as-svg",
+      "export": "renderVegaLiteSpecAsSvg",
+      "args": [
+        "body"
+      ]
+    }
+  },
+  "determinism": {
+    "class": "byte-reproducible",
+    "evidence": "README of the service: byte-identical renders in one process, concurrently, and across processes under different TZ/LANG/LC_ALL; golden hashes per figure. Re-verified for this contract by rendering the example twice (identical bytes, same sha256).",
+    "pins": [
+      "vega@5.33.1",
+      "vega-lite@5.23.0"
+    ]
+  },
+  "pre": {
+    "input": {
+      "schema": {
+        "type": "object",
+        "required": [
+          "spec"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "spec": {
+            "type": "object",
+            "description": "A Vega-Lite v5 specification (JSON)."
+          },
+          "data": {
+            "type": [
+              "object",
+              "array"
+            ],
+            "description": "Either an array of rows (inline data for a spec with no top-level data) or a map of root-relative path to file text (or JSON value) that the spec's data.url values resolve to."
+          },
+          "baseUrl": {
+            "type": "string",
+            "description": "Root-relative directory the spec's relative urls are resolved against. Default: the root."
+          }
+        }
+      },
+      "example": {
+        "spec": {
+          "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
+          "title": "Requests served by outcome",
+          "description": "Bar chart of requests served and refused by a service in one week.",
+          "width": 240,
+          "height": 120,
+          "data": {
+            "values": [
+              {
+                "outcome": "served",
+                "count": 18
+              },
+              {
+                "outcome": "refused before payment",
+                "count": 5
+              },
+              {
+                "outcome": "refused after run",
+                "count": 1
+              }
+            ]
+          },
+          "mark": "bar",
+          "encoding": {
+            "x": {
+              "field": "outcome",
+              "type": "nominal",
+              "axis": {
+                "labelAngle": 0
+              }
+            },
+            "y": {
+              "field": "count",
+              "type": "quantitative"
+            }
+          }
+        }
+      },
+      "maxBytes": 262144
+    },
+    "clauses": [
+      {
+        "id": "request-size",
+        "says": "the JSON request body is at most 256 KiB",
+        "check": "max-bytes"
+      },
+      {
+        "id": "request-shape",
+        "says": "the request is an object with a Vega-Lite v5 spec that compiles, with no network, absolute or escaping data urls",
+        "check": "input-schema"
+      }
+    ],
+    "capacity": {
+      "maxConcurrent": 1,
+      "maxQueue": 8,
+      "queueTimeoutMs": 5000,
+      "runTimeoutMs": 15000,
+      "reason": "Renders set process.env.TZ and reseed Vega's random source, so they run one at a time in one process."
+    }
+  },
+  "post": {
+    "output": {
+      "schema": {
+        "type": "object",
+        "required": [
+          "svg",
+          "sha256",
+          "bytes",
+          "warnings"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "svg": {
+            "type": "string",
+            "description": "The SVG document text."
+          },
+          "sha256": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{64}$",
+            "description": "SHA-256 of the UTF-8 bytes of svg."
+          },
+          "bytes": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "warnings": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "example": {
+        "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" xmlns:xlink=\"http://www.w3.org/1999/xlink\" version=\"1.1\" class=\"marks\" width=\"284\" height=\"179\" viewBox=\"0 0 284 179\" role=\"img\" aria-labelledby=\"vl-e159b0ac-title\" aria-describedby=\"vl-e159b0ac-desc\"><title id=\"vl-e159b0ac-title\">Requests served by outcome</title><desc id=\"vl-e159b0ac-desc\">Bar chart of requests served and refused by a service in one week.</desc><rect width=\"284\" height=\"179\" fill=\"white\"/><g fill=\"none\" stroke-miterlimit=\"10\" transform=\"translate(39,22)\"><g class=\"mark-group role-frame root\" role=\"graphics-object\" aria-roledescription=\"group mark container\"><g transform=\"translate(0,0)\"><path class=\"background\" aria-hidden=\"true\" d=\"M0.5,0.5h240v120h-240Z\" stroke=\"#ddd\"/><g><g class=\"mark-group role-axis\" aria-hidden=\"true\"><g transform=\"translate(0.5,0.5)\"><path class=\"background\" aria-hidden=\"true\" d=\"M0,0h0v0h0Z\" pointer-events=\"none\"/><g><g class=\"mark-rule role-axis-grid\" pointer-events=\"none\"><line transform=\"translate(0,120)\" x2=\"240\" y2=\"0\" stroke=\"#ddd\" stroke-width=\"1\" opacity=\"1\"/><line transform=\"translate(0,87)\" x2=\"240\" y2=\"0\" stroke=\"#ddd\" stroke-width=\"1\" opacity=\"1\"/><line transform=\"translate(0,53)\" x2=\"240\" y2=\"0\" stroke=\"#ddd\" stroke-width=\"1\" opacity=\"1\"/><line transform=\"translate(0,20)\" x2=\"240\" y2=\"0\" stroke=\"#ddd\" stroke-width=\"1\" opacity=\"1\"/></g></g><path class=\"foreground\" aria-hidden=\"true\" d=\"\" pointer-events=\"none\" display=\"none\"/></g></g><g class=\"mark-group role-axis\" role=\"graphics-symbol\" aria-roledescription=\"axis\" aria-label=\"X-axis titled 'outcome' for a discrete scale with 3 values: refused after run, refused before payment, served\"><g transform=\"translate(0.5,120.5)\"><path class=\"background\" aria-hidden=\"true\" d=\"M0,0h0v0h0Z\" pointer-events=\"none\"/><g><g class=\"mark-rule role-axis-tick\" pointer-events=\"none\"><line transform=\"translate(40,0)\" x2=\"0\" y2=\"5\" stroke=\"#888\" stroke-width=\"1\" opacity=\"1\"/><line transform=\"translate(120,0)\" x2=\"0\" y2=\"5\" stroke=\"#888\" stroke-width=\"1\" opacity=\"1\"/><line transform=\"translate(200,0)\" x2=\"0\" y2=\"5\" stroke=\"#888\" stroke-width=\"1\" opacity=\"1\"/></g><g class=\"mark-text role-axis-label\" pointer-events=\"none\"><text text-anchor=\"middle\" transform=\"translate(39.5,15)\" font-family=\"Helvetica, Arial, sans-serif\" font-size=\"10px\" fill=\"#000\" opacity=\"1\">refused after run</text><text text-anchor=\"middle\" transform=\"translate(119.5,15)\" font-family=\"Helvetica, Arial, sans-serif\" font-size=\"10px\" fill=\"#000\" opacity=\"1\">refused before payment</text><text text-anchor=\"middle\" transform=\"translate(199.5,15)\" font-family=\"Helvetica, Arial, sans-serif\" font-size=\"10px\" fill=\"#000\" opacity=\"1\">served</text></g><g class=\"mark-rule role-axis-domain\" pointer-events=\"none\"><line transform=\"translate(0,0)\" x2=\"240\" y2=\"0\" stroke=\"#888\" stroke-width=\"1\" opacity=\"1\"/></g><g class=\"mark-text role-axis-title\" pointer-events=\"none\"><text text-anchor=\"middle\" transform=\"translate(120,30)\" font-family=\"Helvetica, Arial, sans-serif\" font-size=\"11px\" font-weight=\"bold\" fill=\"#000\" opacity=\"1\">outcome</text></g></g><path class=\"foreground\" aria-hidden=\"true\" d=\"\" pointer-events=\"none\" display=\"none\"/></g></g><g class=\"mark-group role-axis\" role=\"graphics-symbol\" aria-roledescription=\"axis\" aria-label=\"Y-axis titled 'count' for a linear scale with values from 0 to 18\"><g transform=\"translate(0.5,0.5)\"><path class=\"background\" aria-hidden=\"true\" d=\"M0,0h0v0h0Z\" pointer-events=\"none\"/><g><g class=\"mark-rule role-axis-tick\" pointer-events=\"none\"><line transform=\"translate(0,120)\" x2=\"-5\" y2=\"0\" stroke=\"#888\" stroke-width=\"1\" opacity=\"1\"/><line transform=\"translate(0,87)\" x2=\"-5\" y2=\"0\" stroke=\"#888\" stroke-width=\"1\" opacity=\"1\"/><line transform=\"translate(0,53)\" x2=\"-5\" y2=\"0\" stroke=\"#888\" stroke-width=\"1\" opacity=\"1\"/><line transform=\"translate(0,20)\" x2=\"-5\" y2=\"0\" stroke=\"#888\" stroke-width=\"1\" opacity=\"1\"/></g><g class=\"mark-text role-axis-label\" pointer-events=\"none\"><text text-anchor=\"end\" transform=\"translate(-7,123)\" font-family=\"Helvetica, Arial, sans-serif\" font-size=\"10px\" fill=\"#000\" opacity=\"1\">0</text><text text-anchor=\"end\" transform=\"translate(-7,89.66666666666667)\" font-family=\"Helvetica, Arial, sans-serif\" font-size=\"10px\" fill=\"#000\" opacity=\"1\">5</text><text text-anchor=\"end\" transform=\"translate(-7,56.33333333333333)\" font-family=\"Helvetica, Arial, sans-serif\" font-size=\"10px\" fill=\"#000\" opacity=\"1\">10</text><text text-anchor=\"end\" transform=\"translate(-7,22.999999999999996)\" font-family=\"Helvetica, Arial, sans-serif\" font-size=\"10px\" fill=\"#000\" opacity=\"1\">15</text></g><g class=\"mark-rule role-axis-domain\" pointer-events=\"none\"><line transform=\"translate(0,120)\" x2=\"0\" y2=\"-120\" stroke=\"#888\" stroke-width=\"1\" opacity=\"1\"/></g><g class=\"mark-text role-axis-title\" pointer-events=\"none\"><text text-anchor=\"middle\" transform=\"translate(-22.12,60) rotate(-90) translate(0,-2)\" font-family=\"Helvetica, Arial, sans-serif\" font-size=\"11px\" font-weight=\"bold\" fill=\"#000\" opacity=\"1\">count</text></g></g><path class=\"foreground\" aria-hidden=\"true\" d=\"\" pointer-events=\"none\" display=\"none\"/></g></g><g class=\"mark-rect role-mark marks\" role=\"graphics-object\" aria-roledescription=\"rect mark container\"><path aria-label=\"outcome: served; count: 18\" role=\"graphics-symbol\" aria-roledescription=\"bar\" d=\"M164,0h72v120h-72Z\" fill=\"#4c78a8\"/><path aria-label=\"outcome: refused before payment; count: 5\" role=\"graphics-symbol\" aria-roledescription=\"bar\" d=\"M84,86.66666666666667h72v33.33333333333333h-72Z\" fill=\"#4c78a8\"/><path aria-label=\"outcome: refused after run; count: 1\" role=\"graphics-symbol\" aria-roledescription=\"bar\" d=\"M4,113.33333333333333h72v6.666666666666671h-72Z\" fill=\"#4c78a8\"/></g><g class=\"mark-group role-title\"><g transform=\"translate(120,-17)\"><path class=\"background\" aria-hidden=\"true\" d=\"M0,0h0v0h0Z\" pointer-events=\"none\"/><g><g class=\"mark-text role-title-text\" role=\"graphics-symbol\" aria-roledescription=\"title\" aria-label=\"Title text 'Requests served by outcome'\" pointer-events=\"none\"><text text-anchor=\"middle\" transform=\"translate(0,10)\" font-family=\"Helvetica, Arial, sans-serif\" font-size=\"13px\" font-weight=\"bold\" fill=\"#000\" opacity=\"1\">Requests served by outcome</text></g></g><path class=\"foreground\" aria-hidden=\"true\" d=\"\" pointer-events=\"none\" display=\"none\"/></g></g></g><path class=\"foreground\" aria-hidden=\"true\" d=\"\" display=\"none\"/></g></g></g></svg>\n",
+        "sha256": "1a8ef803cf5cd70d5c50c869c09394715ccf3c9e4813b10a3484268a05217bfb",
+        "bytes": 6397,
+        "warnings": []
+      },
+      "mimeType": "application/json"
+    },
+    "guarantees": [
+      {
+        "id": "output-shape",
+        "says": "the result is an svg, its sha256, its byte length and the compiler warnings",
+        "check": "output-schema"
+      },
+      {
+        "id": "svg-digest",
+        "says": "sha256 is the SHA-256 of the UTF-8 bytes of svg",
+        "check": "digest-matches",
+        "params": {
+          "contentField": "svg",
+          "digestField": "sha256",
+          "algorithm": "sha256"
+        }
+      },
+      {
+        "id": "svg-size",
+        "says": "the svg is at most 4 MiB",
+        "check": "max-bytes",
+        "params": {
+          "field": "svg",
+          "max": 4194304
+        }
+      }
+    ]
+  },
+  "refusals": [
+    {
+      "id": "payment-required",
+      "when": "payment:required",
+      "http": 402,
+      "charge": "none",
+      "says": "No payment was presented. The response carries the exact payment requirements; nothing has been computed."
+    },
+    {
+      "id": "payment-invalid",
+      "when": "payment:invalid",
+      "http": 402,
+      "charge": "none",
+      "says": "The presented payment did not verify or did not settle. Nothing was charged and no result is returned."
+    },
+    {
+      "id": "queue-full",
+      "when": "capacity:queue-full",
+      "http": 429,
+      "charge": "none",
+      "retryAfterMs": 2000,
+      "says": "The service's queue is full. Retry later; nothing was charged."
+    },
+    {
+      "id": "queue-timeout",
+      "when": "capacity:queue-timeout",
+      "http": 503,
+      "charge": "none",
+      "retryAfterMs": 5000,
+      "says": "The request waited longer than the queue allows. Retry later; nothing was charged."
+    },
+    {
+      "id": "service-failed",
+      "when": "runtime:failed",
+      "http": 502,
+      "charge": "none",
+      "says": "The service failed on an input that met the precondition. Nothing was charged."
+    },
+    {
+      "id": "service-timeout",
+      "when": "runtime:timeout",
+      "http": 504,
+      "charge": "none",
+      "says": "The service did not finish within its run limit. Nothing was charged."
+    },
+    {
+      "id": "service-held",
+      "when": "sale:held",
+      "http": 503,
+      "charge": "none",
+      "says": "This service is held and not for sale. Nothing was charged."
+    },
+    {
+      "id": "negative-margin",
+      "when": "economics:negative-margin",
+      "http": 503,
+      "charge": "none",
+      "says": "The quoted price does not cover the stated cost, so the sale is refused. Nothing was charged."
+    },
+    {
+      "id": "request-too-large",
+      "when": "pre:request-size",
+      "http": 413,
+      "charge": "none",
+      "says": "The request body exceeds 256 KiB. Nothing was charged."
+    },
+    {
+      "id": "request-malformed",
+      "when": "pre:request-shape",
+      "http": 422,
+      "charge": "none",
+      "says": "The request is not a valid chart request: malformed, a spec that does not compile, or a data url that is a network, absolute or escaping reference. Nothing was charged."
+    },
+    {
+      "id": "result-malformed",
+      "when": "post:output-shape",
+      "http": 500,
+      "charge": "none",
+      "says": "The result did not have the promised shape and was withheld. Nothing was charged."
+    },
+    {
+      "id": "result-digest-mismatch",
+      "when": "post:svg-digest",
+      "http": 500,
+      "charge": "none",
+      "says": "The result's digest did not match its svg and was withheld. Nothing was charged."
+    },
+    {
+      "id": "result-too-large",
+      "when": "post:svg-size",
+      "http": 500,
+      "charge": "none",
+      "says": "The rendered svg exceeds 4 MiB and was withheld. Nothing was charged."
+    }
+  ],
+  "price": {
+    "amountAtomic": "10000",
+    "asset": "eip155:8453/erc20:0x833589fcd6edb6e08f4c7c32d4f71b54bda02913",
+    "unit": "call"
+  },
+  "cost": {
+    "basis": "estimated",
+    "asset": "eip155:8453/erc20:0x833589fcd6edb6e08f4c7c32d4f71b54bda02913",
+    "marginalCostAtomic": "6",
+    "settlementFeeAtomic": "1000",
+    "resources": [
+      {
+        "resource": "cpu",
+        "unit": "ms",
+        "amount": "55"
+      }
+    ],
+    "evidence": "CPU 55 ms per warm call measured 2026-10-24 on the development host under heavy load (an upper bound). PROVISIONAL: the owner adopted USD 0.0001 per CPU-second and a 1000-atomic settlement fee on 2026-10-25 ('sounds fair'); both are revisited when the first real cost observation exists (runbook revisit-provisional-service-cost-assumptions)."
+  },
+  "receipt": {
+    "kind": "org.emsenn.service-receipt.v1",
+    "binds": [
+      "contract",
+      "request",
+      "response",
+      "price",
+      "payment",
+      "served-at",
+      "pool",
+      "protocol"
+    ],
+    "signature": {
+      "alg": "none"
+    }
+  },
+  "framings": [
+    {
+      "key": "default",
+      "title": "Render a Vega-Lite chart to SVG",
+      "description": "Render a Vega-Lite v5 chart specification to SVG. Headless and offline, text stays text, accessible title and description, and the same request always returns the same bytes plus their SHA-256.",
+      "tags": [
+        "chart",
+        "svg",
+        "vega-lite",
+        "deterministic",
+        "figure"
+      ],
+      "serviceName": "chart-render-svg"
+    }
+  ],
+  "ledgerAccount": "Income:Sales:X402:Chart-rendering",
+  "markets": [
+    "x402-bazaar",
+    "402index",
+    "house-capability-market",
+    "house-seller-catalog",
+    "a2a-agent-card",
+    "mcp-tool"
+  ],
+  "resources": [
+    "cpu-ms:55"
+  ],
+  "listed": true,
+  "saleStatus": "held",
+  "evidence": {
+    "status": "deterministic derivation, golden-hash witnessed",
+    "citations": [
+      {
+        "title": "Vega-Lite",
+        "url": "https://vega.github.io/vega-lite/"
+      }
+    ]
+  },
+  "seller": {
+    "enterprise": "engineering",
+    "entity": "561-group-llc",
+    "record": {
+      "path": "lib/emsenn/services/561-group/services/engineering-services-section/lib/agency/enterprises/engineering.json",
+      "sha256": "6af4ed9d1e4612b0383267e7ffe0ad028c52164ee3c5136110d434384a29c39f"
+    }
+  }
+}
