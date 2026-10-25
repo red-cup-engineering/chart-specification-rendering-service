@@ -298,7 +298,7 @@
         "amount": "55"
       }
     ],
-    "evidence": "CPU 55 ms per warm render measured 2026-10-24 on the development host under heavy load (upper bound), priced at an ASSUMED USD 0.0001 per CPU-second. settlementFeeAtomic 1000 is an ASSUMPTION (about USD 0.001 per CDP-facilitated settlement) the owner has not confirmed; replace both with observed values before enabling the sale."
+    "evidence": "CPU 55 ms per warm call measured 2026-10-24 on the development host under heavy load (an upper bound). PROVISIONAL: the owner adopted USD 0.0001 per CPU-second and a 1000-atomic settlement fee on 2026-10-25 ('sounds fair'); both are revisited when the first real cost observation exists (runbook revisit-provisional-service-cost-assumptions)."
   },
   "receipt": {
     "kind": "org.emsenn.service-receipt.v1",
