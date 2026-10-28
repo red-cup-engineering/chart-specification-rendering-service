@@ -1,0 +1,50 @@
+{
+ "judgment": {
+  "by": "claude-opus-5-5 (model reviewer), viewing the PNGs",
+  "on": "2026-10-24",
+  "method": "visual reading of downsampled images; no OCR available on the host; counts are approximate and the garbled count is a lower bound"
+ },
+ "source": "read-only rclone copy from the 561 Group Google Drive (media/notebooklm); files are not committed",
+ "items": [
+  {
+   "id": "notebooklm-duluth-climate",
+   "title": "Duluth's Climate Transformation: From Frozen North to Climate Frontier",
+   "provider": "NotebookLM (Google)",
+   "file": "nlm-unnamed__1_.png",
+   "drive": "gdrive:media/notebooklm/unnamed (1).png",
+   "sha256": "138fbd172f74fb6d418957b5723f8bbfe6527b5a1934258689bc518741a157cb",
+   "size": [
+    2752,
+    1536
+   ],
+   "audit": {
+    "words": 120,
+    "garbled": 0,
+    "claimNumbers": 6,
+    "sourcesShown": false,
+    "illustration": "rich painted scene with weather, ice, forest and city",
+    "note": "Same subject as our flagship. Clean headline and callouts; every number (+1.8 F, 4-11 F by 2100, ~50 fewer freezing days, 58 percent, 4.5 F, 23 days above 95 F) is unsourced on the image; only a NotebookLM watermark is shown."
+   }
+  },
+  {
+   "id": "notebooklm-tabasheer-continuum",
+   "title": "The Tabasheer Continuum",
+   "provider": "NotebookLM (Google)",
+   "file": "nlm-The_Tabasheer_Continuum_Infographic.png",
+   "drive": "gdrive:media/notebooklm/The_Tabasheer_Continuum_Infographic.png",
+   "sha256": "4438d4bb56dbc53aa306e05b7c38cb132a496624fd6f3f73073291c91cf72bc8",
+   "size": [
+    1536,
+    2752
+   ],
+   "audit": {
+    "words": 600,
+    "garbled": 4,
+    "claimNumbers": 10,
+    "sourcesShown": false,
+    "illustration": "molecular diagrams, anatomical figure, botanical borders",
+    "note": "Dense four-section poster. Visible garbled or misspelled words at reading size (for example 'chiiically', 'medieine', 'enecudes', 'tmanl'); a lower bound from a downsampled reading. Strong visual hierarchy by section card."
+   }
+  }
+ ]
+}

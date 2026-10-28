@@ -1,7 +1,7 @@
 {
   "name": "@red-cup-engineering/chart-specification-rendering-service",
   "version": "0.3.0",
-  "description": "Renders Vega-Lite (v5 or v6) chart specifications to byte-reproducible SVG, headless and offline, so research figures can stay as data (Vega-Lite JSON) in Science repositories.",
+  "description": "Renders Vega-Lite (v5 or v6) chart specifications to byte-reproducible SVG, headless and offline, so research figures can stay as data (Vega-Lite JSON) in Science repositories. Includes the optional source-qualified infographic engine, scorer and media-plan adapter.",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/red-cup-engineering/chart-specification-rendering-service.git"
@@ -13,19 +13,28 @@
     ".": "./scripts/index.mjs",
     "./render-vega-lite-spec-as-svg": "./scripts/render-vega-lite-spec-as-svg.mjs",
     "./validate-vega-lite-spec": "./scripts/validate-vega-lite-spec.mjs",
-    "./render-chart-specifications": "./scripts/render-chart-specifications.mjs"
+    "./render-chart-specifications": "./scripts/render-chart-specifications.mjs",
+    "./infographic": "./src/infographic/index.mjs",
+    "./infographic/score": "./src/infographic/score.mjs",
+    "./infographic/raster": "./src/infographic/raster.mjs",
+    "./infographic/schema": "./src/infographic/infographic-spec.schema.json",
+    "./infographic/media-plan-asset": "./src/infographic/media-plan-asset.mjs"
   },
   "bin": {
     "render-vega-lite-spec-as-svg": "scripts/render-vega-lite-spec-as-svg.mjs",
     "validate-vega-lite-spec": "scripts/validate-vega-lite-spec.mjs",
-    "render-chart-specifications": "scripts/render-chart-specifications.mjs"
+    "render-chart-specifications": "scripts/render-chart-specifications.mjs",
+    "infographic": "scripts/infographic.mjs"
   },
   "files": [
     "scripts",
     "data",
     "README.md",
     "LICENSE",
-    "package.json"
+    "package.json",
+    "examples/specs",
+    "lib",
+    "src"
   ],
   "dependencies": {
     "@red-cup-engineering/computer-content-address-engineering-services-section": "0.2.1",
@@ -37,7 +46,7 @@
     "vega-lite": "6.5.0"
   },
   "scripts": {
-    "check": "for file in scripts/*.mjs test/*.mjs; do node --check \"$file\" || exit; done",
+    "check": "for file in scripts/*.mjs src/infographic/*.mjs test/*.mjs; do node --check \"$file\" || exit; done",
     "test": "node --test test/*.test.mjs",
     "pack:dry-run": "npm pack --dry-run --ignore-scripts"
   },
@@ -48,7 +57,10 @@
     "svg",
     "deterministic",
     "reproducible",
-    "figures"
+    "figures",
+    "infographic",
+    "layout",
+    "accessibility"
   ],
   "engines": {
     "node": ">=24.2.0"
