@@ -123,7 +123,7 @@ Upgrading `vega` or `vega-lite` can change bytes; the golden hashes in
 ## Held market offers
 
 `package.json#x-market` declares the offers (the schema of
-[x402-services-section#18](https://github.com/red-cup-engineering/x402-services-section),
+[x402-computer-networks-engineering-services-section#18](https://github.com/red-cup-engineering/x402-computer-networks-engineering-services-section),
 copied to `test/fixtures/package-market.schema.json`); `data/records/offers/<operation>.json`
 are the offers derived from it (`deriveOffersFromPackage`), one per operation, all
 `saleStatus: "held"` and sold by the `engineering` enterprise (record sha256
@@ -132,7 +132,7 @@ are the offers derived from it (`deriveOffersFromPackage`), one per operation, a
 on the four House markets. Prices: `render-vega-lite-spec-as-svg` $0.005, `validate-vega-lite-spec`
 $0.002. `test/fixtures/offer.schema.json` is a copy of the x402 package's `schemas/offer.schema.json`;
 the offer records omit the `derivedFrom` marker that PR #18's schema adds, because the schema
-on the House tree does not admit it yet. Set `X402_OFFER_MODULE=/path/to/x402-services-section/src/offer.mjs`
+on the House tree does not admit it yet. Set `X402_OFFER_MODULE=/path/to/x402-computer-networks-engineering-services-section/src/offer.mjs`
 to also run the package's own `declareOffer` over each offer.
 
 ## Limitations
