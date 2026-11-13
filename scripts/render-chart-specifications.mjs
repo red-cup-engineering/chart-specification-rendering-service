@@ -92,7 +92,7 @@ export const command = {
 };
 
 if (import.meta.main) {
-  const { runJavascriptNodeOperationModule } = await import("@red-cup-engineering/javascript-node-services-section/operation");
+  const { runJavascriptNodeOperationModule } = await import("@red-cup-engineering/javascript-node-engineering-services-section/operation");
   if (process.argv.includes("--help")) process.stdout.write(`${commandDescription.name} - ${commandDescription.description}\n`);
   else {
     process.exitCode = (await runJavascriptNodeOperationModule({ command }, {

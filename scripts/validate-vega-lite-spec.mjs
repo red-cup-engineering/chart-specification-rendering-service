@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-import { validateJsonSchema } from "@red-cup-engineering/json-schema-services-section/validation";
+import { validateJsonSchema } from "@red-cup-engineering/json-schema-engineering-services-section/validation";
 import vegaLiteSchema from "vega-lite/vega-lite-schema.json" with { type: "json" };
 import { assertKeys, assertPlainObject, assertSpec, compileVegaLite } from "./vega-render.mjs";
 import { runCommand } from "./chart-face.mjs";
