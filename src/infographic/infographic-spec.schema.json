@@ -1,0 +1,200 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/red-cup-engineering/chart-specification-rendering-service/src/infographic/infographic-spec.schema.json",
+  "title": "Infographic specification v1",
+  "description": "A declarative, deterministic infographic: canvas, theme, and an ordered list of blocks. The same spec always renders the same SVG bytes.",
+  "type": "object",
+  "required": ["version", "meta", "blocks"],
+  "additionalProperties": false,
+  "properties": {
+    "$schema": { "type": "string" },
+    "version": { "const": 1 },
+    "id": { "type": "string", "maxLength": 120 },
+    "lang": { "type": "string", "pattern": "^[a-z]{2,3}(-[A-Za-z0-9]+)*$" },
+    "meta": {
+      "type": "object",
+      "required": ["title", "description"],
+      "additionalProperties": false,
+      "properties": {
+        "title": { "type": "string", "minLength": 1, "maxLength": 200 },
+        "description": { "type": "string", "minLength": 20, "maxLength": 1200, "description": "Text alternative for the whole graphic (accessible description)." },
+        "license": { "type": "string" },
+        "createdFor": { "type": "string" }
+      }
+    },
+    "canvas": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "preset": { "enum": ["landscape-16x9", "portrait-9x16", "landscape-4k", "portrait-4k", "square", "poster-2x3"] },
+        "width": { "type": "integer", "minimum": 320, "maximum": 8192 },
+        "height": { "type": "integer", "minimum": 320, "maximum": 8192 },
+        "background": { "enum": ["solid", "transparent"] },
+        "safeArea": { "type": "number", "minimum": 0, "maximum": 0.2, "description": "Fraction of each dimension kept clear on every side (0.05 = broadcast title-safe)." },
+        "minScale": { "type": "number", "minimum": 0.5, "maximum": 1 },
+        "textMode": { "enum": ["outline", "live"], "description": "outline: glyphs drawn as paths (identical everywhere); live: <text> elements." }
+      }
+    },
+    "theme": {
+      "oneOf": [
+        { "enum": ["ledger", "night"] },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "extends": { "enum": ["ledger", "night"] },
+            "name": { "type": "string" },
+            "color": { "type": "object", "additionalProperties": { "oneOf": [{ "type": "string", "pattern": "^#[0-9a-fA-F]{6}$" }, { "type": "array", "items": { "type": "string", "pattern": "^#[0-9a-fA-F]{6}$" } }] } },
+            "type": { "type": "object" },
+            "space": { "type": "object", "additionalProperties": { "type": "number" } },
+            "stroke": { "type": "object", "additionalProperties": { "type": "number" } }
+          }
+        }
+      ]
+    },
+    "layout": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": { "columns": { "type": "integer", "minimum": 1, "maximum": 24 } }
+    },
+    "blocks": { "type": "array", "minItems": 1, "maxItems": 60, "items": { "$ref": "#/$defs/block" } }
+  },
+  "$defs": {
+    "tone": { "enum": ["accent", "accent2", "positive", "negative", "warning", "inkMuted"] },
+    "icon": { "enum": ["thermometer", "snowflake", "sun", "drop", "rain", "wind", "flame", "leaf", "tree", "wave", "ice", "building", "factory", "clock", "calendar", "pin", "arrow-up", "arrow-down", "arrow-right", "check", "cross", "warning", "info", "chart", "bolt", "house", "people", "shield", "book", "globe", "database", "gear"] },
+    "text": { "type": "string", "minLength": 1, "maxLength": 600 },
+    "provenance": {
+      "type": "object",
+      "required": ["kind"],
+      "additionalProperties": false,
+      "properties": {
+        "kind": { "enum": ["observed", "derived", "model", "fixture", "illustrative"], "description": "Anything other than observed draws a badge on the block: the figure never passes off made-up data as measured." },
+        "note": { "type": "string", "maxLength": 400 }
+      }
+    },
+    "points": { "type": "array", "minItems": 2, "items": { "type": "array", "minItems": 2, "maxItems": 2, "items": { "type": ["number", "null"] } } },
+    "series": {
+      "type": "object",
+      "required": ["name"],
+      "additionalProperties": false,
+      "properties": {
+        "name": { "type": "string" },
+        "label": { "oneOf": [{ "type": "string" }, { "const": false }] },
+        "tone": { "type": "string" },
+        "width": { "type": "number", "minimum": 0.5, "maximum": 12 },
+        "dash": { "type": "string" },
+        "raw": { "type": "boolean", "description": "Draw the points as a thin line and a smoothed bold line over it." },
+        "points": { "$ref": "#/$defs/points" },
+        "x": { "type": "array", "items": { "type": "number" } },
+        "y": { "type": "array", "items": { "type": ["number", "null"] } },
+        "band": { "type": "object", "required": ["low", "high"], "properties": { "low": { "type": "array", "items": { "type": "number" } }, "high": { "type": "array", "items": { "type": "number" } } } },
+        "smooth": { "type": "integer", "minimum": 3, "maximum": 51 }
+      }
+    },
+    "annotation": {
+      "type": "object",
+      "required": ["x", "text"],
+      "additionalProperties": false,
+      "properties": { "x": { "type": "number" }, "y": { "type": "number" }, "text": { "$ref": "#/$defs/text" }, "width": { "type": "number", "minimum": 80, "maximum": 600 } }
+    },
+    "block": {
+      "oneOf": [
+        { "$ref": "#/$defs/header" }, { "$ref": "#/$defs/heroStat" }, { "$ref": "#/$defs/stats" }, { "$ref": "#/$defs/chart" },
+        { "$ref": "#/$defs/comparison" }, { "$ref": "#/$defs/timeline" }, { "$ref": "#/$defs/process" }, { "$ref": "#/$defs/callout" },
+        { "$ref": "#/$defs/prose" }, { "$ref": "#/$defs/locator" }, { "$ref": "#/$defs/sources" }
+      ],
+      "x-discriminator": "type"
+    },
+    "header": {
+      "type": "object", "required": ["type", "title"], "additionalProperties": false,
+      "properties": { "type": { "const": "header" }, "id": { "type": "string" }, "span": { "type": "integer", "minimum": 1 }, "newRow": { "type": "boolean" }, "dock": { "const": "bottom" },
+        "kicker": { "type": "string" }, "title": { "$ref": "#/$defs/text" }, "subtitle": { "$ref": "#/$defs/text" }, "titleMaxLines": { "type": "integer", "minimum": 1, "maximum": 4 },
+        "badge": { "type": "object", "required": ["text"], "additionalProperties": false, "properties": { "text": { "type": "string" }, "icon": { "$ref": "#/$defs/icon" } } } }
+    },
+    "heroStat": {
+      "type": "object", "required": ["type", "value", "label"], "additionalProperties": false,
+      "properties": { "type": { "const": "heroStat" }, "id": { "type": "string" }, "span": { "type": "integer", "minimum": 1 }, "newRow": { "type": "boolean" }, "dock": { "const": "bottom" },
+        "kicker": { "type": "string" }, "value": { "type": "string", "maxLength": 16 }, "unit": { "type": "string", "maxLength": 12 }, "label": { "$ref": "#/$defs/text" }, "context": { "$ref": "#/$defs/text" },
+        "icon": { "$ref": "#/$defs/icon" }, "tone": { "$ref": "#/$defs/tone" }, "provenance": { "$ref": "#/$defs/provenance" } }
+    },
+    "stats": {
+      "type": "object", "required": ["type", "items"], "additionalProperties": false,
+      "properties": { "type": { "const": "stats" }, "id": { "type": "string" }, "span": { "type": "integer", "minimum": 1 }, "newRow": { "type": "boolean" }, "dock": { "const": "bottom" }, "columns": { "type": "integer", "minimum": 1, "maximum": 6 },
+        "items": { "type": "array", "minItems": 1, "maxItems": 12, "items": { "type": "object", "required": ["value", "label"], "additionalProperties": false,
+          "properties": { "value": { "type": "string", "maxLength": 14 }, "unit": { "type": "string", "maxLength": 12 }, "label": { "$ref": "#/$defs/text" }, "note": { "$ref": "#/$defs/text" }, "icon": { "$ref": "#/$defs/icon" }, "tone": { "$ref": "#/$defs/tone" }, "trend": { "type": "array", "minItems": 3, "items": { "type": "number" } }, "provenance": { "$ref": "#/$defs/provenance" } } } } }
+    },
+    "chart": {
+      "type": "object", "required": ["type", "kind"], "additionalProperties": false,
+      "properties": { "type": { "const": "chart" }, "id": { "type": "string" }, "span": { "type": "integer", "minimum": 1 }, "newRow": { "type": "boolean" }, "dock": { "const": "bottom" },
+        "kind": { "enum": ["line", "anomalyBars", "stripes", "fan", "bars"] },
+        "title": { "$ref": "#/$defs/text" }, "subtitle": { "$ref": "#/$defs/text" }, "note": { "$ref": "#/$defs/text" }, "provenance": { "$ref": "#/$defs/provenance" },
+        "aspect": { "type": "number", "minimum": 0.15, "maximum": 1.5 }, "flex": { "type": "number", "minimum": 0, "maximum": 4 },
+        "series": { "type": "array", "minItems": 1, "maxItems": 8, "items": { "$ref": "#/$defs/series" } },
+        "yUnit": { "type": "string" }, "yMin": { "type": "number" }, "yMax": { "type": "number" }, "yDecimals": { "type": "integer", "minimum": 0, "maximum": 6 }, "yTickCount": { "type": "integer", "minimum": 2, "maximum": 10 }, "xMin": { "type": "number" }, "xMax": { "type": "number" }, "xTickCount": { "type": "integer", "minimum": 2, "maximum": 12 },
+        "signed": { "type": "boolean" }, "includeZero": { "type": "boolean" }, "smooth": { "type": "integer", "minimum": 0, "maximum": 51 },
+        "trend": { "type": "object", "additionalProperties": false, "properties": { "series": { "type": "string" }, "from": { "type": "number" } } },
+        "annotations": { "type": "array", "maxItems": 8, "items": { "$ref": "#/$defs/annotation" } },
+        "colorRange": { "type": "number", "exclusiveMinimum": 0 }, "center": { "type": "number" }, "legendLow": { "type": "string" }, "legendHigh": { "type": "string" },
+        "observed": { "type": "array", "items": { "$ref": "#/$defs/series" } },
+        "scenarios": { "type": "array", "minItems": 1, "maxItems": 5, "items": { "type": "object", "required": ["name", "median", "low", "high"], "additionalProperties": false,
+          "properties": { "name": { "type": "string" }, "tone": { "type": "string" }, "dash": { "type": "string" }, "median": { "$ref": "#/$defs/points" }, "low": { "$ref": "#/$defs/points" }, "high": { "$ref": "#/$defs/points" } } } },
+        "fromX": { "type": "number" }, "bandLabel": { "type": "string" }, "projectionLabel": { "type": "string" },
+        "items": { "type": "array", "minItems": 1, "maxItems": 14, "items": { "type": "object", "required": ["label", "value"], "additionalProperties": false, "properties": { "label": { "type": "string" }, "value": { "type": "number" }, "tone": { "type": "string" } } } },
+        "unit": { "type": "string" }, "decimals": { "type": "integer", "minimum": 0, "maximum": 4 }, "max": { "type": "number" } },
+      "allOf": [
+        { "if": { "properties": { "kind": { "enum": ["line", "anomalyBars", "stripes"] } } }, "then": { "required": ["series"] } },
+        { "if": { "properties": { "kind": { "const": "fan" } } }, "then": { "required": ["observed", "scenarios"] } },
+        { "if": { "properties": { "kind": { "const": "bars" } } }, "then": { "required": ["items"] } }
+      ]
+    },
+    "comparison": {
+      "type": "object", "required": ["type"], "additionalProperties": false,
+      "properties": { "type": { "const": "comparison" }, "id": { "type": "string" }, "span": { "type": "integer", "minimum": 1 }, "newRow": { "type": "boolean" }, "dock": { "const": "bottom" },
+        "title": { "$ref": "#/$defs/text" }, "mode": { "enum": ["columns", "bars"] },
+        "columns": { "type": "array", "minItems": 2, "maxItems": 4, "items": { "type": "object", "required": ["heading"], "additionalProperties": false,
+          "properties": { "heading": { "$ref": "#/$defs/text" }, "tone": { "type": "string" }, "metric": { "type": "object", "required": ["value"], "additionalProperties": false, "properties": { "value": { "type": "string" }, "unit": { "type": "string" } } },
+            "items": { "type": "array", "maxItems": 8, "items": { "type": "object", "required": ["text"], "additionalProperties": false, "properties": { "text": { "$ref": "#/$defs/text" }, "good": { "type": "boolean" }, "icon": { "$ref": "#/$defs/icon" } } } } } } },
+        "series": { "type": "array", "minItems": 1, "maxItems": 3, "items": { "type": "string" } },
+        "rows": { "type": "array", "minItems": 1, "maxItems": 12, "items": { "type": "object", "required": ["label", "values"], "additionalProperties": false, "properties": { "label": { "type": "string" }, "values": { "type": "array", "items": { "type": "number" } } } } },
+        "unit": { "type": "string" }, "max": { "type": "number" }, "provenance": { "$ref": "#/$defs/provenance" } }
+    },
+    "timeline": {
+      "type": "object", "required": ["type", "events"], "additionalProperties": false,
+      "properties": { "type": { "const": "timeline" }, "id": { "type": "string" }, "span": { "type": "integer", "minimum": 1 }, "newRow": { "type": "boolean" }, "dock": { "const": "bottom" },
+        "title": { "$ref": "#/$defs/text" }, "orientation": { "enum": ["auto", "horizontal", "vertical"] },
+        "events": { "type": "array", "minItems": 2, "maxItems": 10, "items": { "type": "object", "required": ["when", "title"], "additionalProperties": false,
+          "properties": { "when": { "type": "string", "maxLength": 40 }, "title": { "$ref": "#/$defs/text" }, "body": { "$ref": "#/$defs/text" }, "tone": { "$ref": "#/$defs/tone" } } } } }
+    },
+    "process": {
+      "type": "object", "required": ["type", "steps"], "additionalProperties": false,
+      "properties": { "type": { "const": "process" }, "id": { "type": "string" }, "span": { "type": "integer", "minimum": 1 }, "newRow": { "type": "boolean" }, "dock": { "const": "bottom" },
+        "title": { "$ref": "#/$defs/text" }, "perRow": { "type": "integer", "minimum": 1, "maximum": 8 },
+        "steps": { "type": "array", "minItems": 2, "maxItems": 10, "items": { "type": "object", "required": ["title"], "additionalProperties": false,
+          "properties": { "title": { "$ref": "#/$defs/text" }, "body": { "$ref": "#/$defs/text" }, "icon": { "$ref": "#/$defs/icon" }, "tone": { "$ref": "#/$defs/tone" } } } } }
+    },
+    "callout": {
+      "type": "object", "required": ["type", "text"], "additionalProperties": false,
+      "properties": { "type": { "const": "callout" }, "id": { "type": "string" }, "span": { "type": "integer", "minimum": 1 }, "newRow": { "type": "boolean" }, "dock": { "const": "bottom" },
+        "title": { "$ref": "#/$defs/text" }, "text": { "$ref": "#/$defs/text" }, "icon": { "$ref": "#/$defs/icon" }, "tone": { "$ref": "#/$defs/tone" } }
+    },
+    "prose": {
+      "type": "object", "required": ["type"], "additionalProperties": false,
+      "properties": { "type": { "const": "prose" }, "id": { "type": "string" }, "span": { "type": "integer", "minimum": 1 }, "newRow": { "type": "boolean" }, "dock": { "const": "bottom" },
+        "heading": { "$ref": "#/$defs/text" }, "icon": { "$ref": "#/$defs/icon" }, "tone": { "$ref": "#/$defs/tone" },
+        "paragraphs": { "type": "array", "maxItems": 6, "items": { "$ref": "#/$defs/text" } }, "bullets": { "type": "array", "maxItems": 10, "items": { "$ref": "#/$defs/text" } } }
+    },
+    "locator": {
+      "type": "object", "required": ["type", "outline"], "additionalProperties": false,
+      "properties": { "type": { "const": "locator" }, "id": { "type": "string" }, "span": { "type": "integer", "minimum": 1 }, "newRow": { "type": "boolean" }, "dock": { "const": "bottom" },
+        "title": { "$ref": "#/$defs/text" }, "caption": { "$ref": "#/$defs/text" },
+        "outline": { "$ref": "#/$defs/rings" }, "context": { "$ref": "#/$defs/rings" }, "region": { "$ref": "#/$defs/rings" }, "regionLabel": { "type": "string" },
+        "marker": { "type": "object", "required": ["lon", "lat", "label"], "additionalProperties": false, "properties": { "lon": { "type": "number", "minimum": -180, "maximum": 180 }, "lat": { "type": "number", "minimum": -90, "maximum": 90 }, "label": { "type": "string" } } } }
+    },
+    "rings": { "type": "array", "minItems": 1, "items": { "type": "array", "minItems": 3, "items": { "type": "array", "minItems": 2, "maxItems": 2, "items": { "type": "number" } } } },
+    "sources": {
+      "type": "object", "required": ["type", "items"], "additionalProperties": false,
+      "properties": { "type": { "const": "sources" }, "id": { "type": "string" }, "span": { "type": "integer", "minimum": 1 }, "newRow": { "type": "boolean" }, "dock": { "const": "bottom" },
+        "columns": { "type": "integer", "minimum": 1, "maximum": 3 }, "items": { "type": "array", "minItems": 1, "maxItems": 12, "items": { "$ref": "#/$defs/text" } }, "stamp": { "type": "string" } }
+    }
+  }
+}

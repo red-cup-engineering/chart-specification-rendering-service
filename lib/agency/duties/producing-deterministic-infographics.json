@@ -1,0 +1,25 @@
+{
+  "id": "producing-deterministic-infographics",
+  "name": "producing deterministic infographics",
+  "kind": "duty",
+  "x-status": "proposed instance; no governance act is claimed. Written in the shape of engineering-services-section/lib/agency/duties/*.json without last-governance-act, which only an admitted authority can set. See system-debt record 2026-10-24-infographic-forms-unadmitted.",
+  "office": "senior-engineer",
+  "office-note": "Closest existing office is Red Cup Engineering's senior-engineer (part-of engineering-services-section). The owning section for visual media engineering is the intended seat computer-media-engineering-services-section; moving these forms there is an open decision.",
+  "authority": "chief-engineering-officer",
+  "work": "producing-deterministic-infographics",
+  "from": "A requested infographic (a spec in JSON, or content to be put into one) with its data, its sources and its receiver (a research paper, a video shot, a page).",
+  "to": "An SVG whose bytes are a pure function of the spec, a layout report, a quality score against the rubric and, where a video frame is wanted, PNGs at the requested video resolution; the receiver has the files and the digests.",
+  "cost": "Engine source, shipped OFL fonts, open data with a retrieval date, one machine-minute per render; no model call.",
+  "otherwise": "Refuse with the exact reason: invalid spec, content that does not fit at the minimum scale, data without a source, a glyph the fonts lack. Never ship an infographic whose numbers lack provenance or whose text overflows.",
+  "receiver-condition": "The receiver (not the producer) opens the SVG and the PNG, checks the digest recorded in the metadata against the spec it supplied, and accepts or returns it. A green test run is not receiving.",
+  "skills": [
+    "render-infographic-from-spec",
+    "score-infographic",
+    "rasterize-infographic-frame",
+    "benchmark-against-ai-infographics"
+  ],
+  "runbooks": [
+    "commission-an-infographic",
+    "re-benchmark-against-ai-infographics"
+  ]
+}
