@@ -1,3 +1,4 @@
+import { sha256Hex } from "@red-cup-engineering/semiotic-content-address-system";
 // The scene: an append-only SVG writer that also keeps the layout report the scorer reads. Text is drawn either as
 // outlined glyph <use>s (default: identical in every renderer, no fonts needed) or as live <text>.
 import { createHash } from "node:crypto";
@@ -15,7 +16,7 @@ export const n = (value, places = 2) => {
 
 export const esc = (value) => String(value).replace(/&/gu, "&amp;").replace(/</gu, "&lt;").replace(/>/gu, "&gt;").replace(/"/gu, "&quot;");
 
-export const sha256 = (text) => createHash("sha256").update(text, "utf8").digest("hex");
+
 
 const INK_UP = 0.77, INK_DOWN = 0.24;
 

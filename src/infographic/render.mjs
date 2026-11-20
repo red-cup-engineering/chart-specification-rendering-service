@@ -1,7 +1,8 @@
+import { sha256Hex } from "@red-cup-engineering/semiotic-content-address-system";
 // renderInfographic: spec -> { svg, sha256, bytes, report, warnings }. Pure and deterministic: the output is a function of
 // the spec alone (no clock, no randomness, no system fonts, no network).
 import { CANVAS_PRESETS, resolveTheme } from "./theme.mjs";
-import { Scene, esc, n, sha256 } from "./scene.mjs";
+import { Scene, esc, n } from "./scene.mjs";
 import { makeContext } from "./context.mjs";
 import { BLOCKS } from "./blocks.mjs";
 import { chart } from "./charts.mjs";
@@ -106,7 +107,7 @@ export function renderInfographic(input, { textMode } = {}) {
   if (issues.length) throw new TypeError(`infographic spec is invalid: ${issues.slice(0, 6).map((i) => `${i.path || "/"} ${i.message}`).join("; ")}`);
   const canvas = resolveCanvas(spec.canvas);
   const theme = resolveTheme(spec.theme);
-  const specDigest = sha256(canonicalJson(spec));
+  const specDigest = sha256Hex(canonicalJson(spec));
   const idPrefix = `ig${specDigest.slice(0, 6)}`;
   const mode = textMode ?? spec.canvas?.textMode ?? "outline";
   const sol = solve(spec, canvas, theme, mode, idPrefix);
@@ -161,7 +162,7 @@ export function renderInfographic(input, { textMode } = {}) {
     missingGlyphs: scene.report.missingGlyphs, truncated: scene.report.truncated, overflow: scene.report.overflow,
     transcript: scene.transcript, provenance: collectProvenance(spec),
   };
-  return { svg, sha256: sha256(svg), bytes: Buffer.byteLength(svg, "utf8"), report, warnings, specDigest: `sha256:${specDigest}`, descLength: descParts.join(" ").length };
+  return { svg, sha256: sha256Hex(svg), bytes: Buffer.byteLength(svg, "utf8"), report, warnings, specDigest: `sha256:${specDigest}`, descLength: descParts.join(" ").length };
 }
 
 function collectProvenance(spec) {
