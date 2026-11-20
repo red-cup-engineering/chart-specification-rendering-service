@@ -149,7 +149,7 @@ export function renderInfographic(input, { textMode } = {}) {
     `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${canvas.width} ${canvas.height}" width="${canvas.width}" height="${canvas.height}" role="img" aria-labelledby="${idPrefix}-t" aria-describedby="${idPrefix}-d" lang="${esc(spec.lang ?? "en")}">`,
     `<title id="${idPrefix}-t">${esc(title)}</title>`,
     `<desc id="${idPrefix}-d">${esc(desc)}</desc>`,
-    `<metadata>${esc(JSON.stringify({ generator: `chart-specification-rendering-service/infographic ${ENGINE_VERSION}`, spec: `sha256:${specDigest}`, canvas: [canvas.width, canvas.height], scale: sol.scale, theme: theme.name, textMode: mode, fonts: [...scene.report.fonts].sort(), fixtureData: collectOrigin(spec) }))}</metadata>`,
+    `<metadata>${esc(JSON.stringify({ generator: `chart-specification-rendering-service/infographic ${ENGINE_VERSION}`, spec: `sha256:${specDigest}`, canvas: [canvas.width, canvas.height], scale: sol.scale, theme: theme.name, textMode: mode, fonts: [...scene.report.fonts].sort(), fixtureData: collectProvenance(spec) }))}</metadata>`,
     `<defs>${scene.glyphDefs()}</defs>`,
   ];
   if (canvas.background !== "transparent") head.push(`<rect width="${canvas.width}" height="${canvas.height}" fill="${theme.color.bg}"/>`);
@@ -159,12 +159,12 @@ export function renderInfographic(input, { textMode } = {}) {
     inner: sol.inner, columns, colWidth: sol.colW, gutter: sol.gutter, u: sol.u,
     blocks: rowsReport, texts: scene.report.texts, marks: scene.report.marks, boxes: scene.report.boxes,
     missingGlyphs: scene.report.missingGlyphs, truncated: scene.report.truncated, overflow: scene.report.overflow,
-    transcript: scene.transcript, provenance: collectOrigin(spec),
+    transcript: scene.transcript, provenance: collectProvenance(spec),
   };
   return { svg, sha256: sha256(svg), bytes: Buffer.byteLength(svg, "utf8"), report, warnings, specDigest: `sha256:${specDigest}`, descLength: descParts.join(" ").length };
 }
 
-function collectOrigin(spec) {
+function collectProvenance(spec) {
   return spec.blocks.filter((b) => b.provenance && b.provenance.kind !== "observed").map((b) => ({ block: b.id ?? null, kind: b.provenance.kind, note: b.provenance.note ?? null }));
 }
 
