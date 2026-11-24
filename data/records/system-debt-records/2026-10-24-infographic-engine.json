@@ -1,0 +1,89 @@
+{
+  "kind": "system-debt-records",
+  "x-status": "written in the nearest existing shape (data/records/system-debt-records in 561-group-services-section); to be received there. Gap: the schema for system-debt records was not read on this host (filesystem too slow to read it); fields are id, observed, decided, changed, open, provenance.",
+  "recorded-by": "claude-opus-5-5 (deterministic SVG infographics thread, session 6650e4aa)",
+  "recorded-on": "2026-10-24",
+  "office": "senior-engineer",
+  "duty": "producing-deterministic-infographics",
+  "records": [
+    {
+      "id": "2026-10-24-infographic-forms-unadmitted",
+      "observed": "No office, duty or skill existed for deterministic infographic production. No runbook form exists in lib/agency. The forms in this repository's lib/agency are written without last-governance-act.",
+      "decided": "Reuse the Red Cup senior-engineer office; add one duty, four skills and two runbooks in lib/agency of this repository as proposed instances.",
+      "changed": [
+        "lib/agency/duties/producing-deterministic-infographics.json",
+        "lib/agency/skills/*",
+        "lib/agency/runbooks/*"
+      ],
+      "open": [
+        "Admit the duty under an actual authority (CEngO) or reject it.",
+        "Decide the owning section: computer-media-engineering-services-section is the intended seat of this package per its README; this repository is not a section.",
+        "The operational-knowledge thread owns the runbook form; migrate lib/agency/runbooks/* to it."
+      ],
+      "provenance": "owner addendum to the thread, 2026-10-24; rule no-work-outside-an-office-duty-and-skill"
+    },
+    {
+      "id": "2026-10-24-infographic-engine-seat",
+      "observed": "The engine landed in chart-specification-rendering-service because the climate-paper thread already depends on it for figures and it already has the SVG/PNG CLI pattern, determinism tests and refusal style. Its name says Vega-Lite; the engine is not Vega-Lite.",
+      "decided": "Export it as ./infographic with its own bin; no dependency on vega.",
+      "open": [
+        "Split into its own repository (infographic-rendering-service) under computer-media-engineering-services-section, or rename this package. Needs owner decision.",
+        "Held x402 offers (data/records/offers) were not extended; no market offer is made for the infographic operations."
+      ],
+      "provenance": "decision made under time pressure; reversible by moving src/infographic, scripts/infographic.mjs, fonts and lib/agency"
+    },
+    {
+      "id": "2026-10-24-infographic-png-determinism",
+      "observed": "PNG output uses rsvg-convert; its bytes are stable on one host but not guaranteed across librsvg versions. Text is outlined so layout cannot drift, only anti-aliasing can.",
+      "decided": "The SVG digest is the identity; PNG is a derived frame.",
+      "open": [
+        "Pin a pure-JS rasteriser (resvg-js) and add a PNG golden if a video pipeline needs byte-identical frames."
+      ],
+      "provenance": "verified on this host only (librsvg 2.58.0)"
+    },
+    {
+      "id": "2026-10-24-infographic-no-illustration",
+      "observed": "AI infographics (NotebookLM/Gemini sample set) carry illustration, photographic and painterly scene content; the engine has a 32-icon set and charts only.",
+      "decided": "Out of scope for the deterministic path; a generated illustration may be supplied as a separate labelled asset (visual-asset-generation-engineering-services-section owns that).",
+      "open": [
+        "An image block that embeds an asset by content address with a provenance badge.",
+        "Larger original icon and spot-illustration library."
+      ],
+      "provenance": "benchmark comparison, 2026-10-24"
+    },
+    {
+      "id": "2026-10-24-infographic-scorer-gaps",
+      "observed": "The scorer does not measure baseline-grid rhythm, data-ink ratio, colour-vision-deficiency separation or aesthetic quality. Benchmark text fidelity is a reviewer reading because the host has no OCR. Hyphenation is a heuristic, not Liang patterns. Kerning uses GPOS pair tables only, no GSUB ligatures or complex scripts; Latin-script text only.",
+      "decided": "Declare these in the rubric as not measured rather than score them.",
+      "open": [
+        "Add CVD simulation to the contrast criterion.",
+        "Add OCR (tesseract) to the benchmark skill so text fidelity is measured.",
+        "Liang hyphenation patterns; non-Latin faces."
+      ],
+      "provenance": "src/infographic/score.mjs RUBRIC"
+    },
+    {
+      "id": "2026-10-24-host-resource-starvation",
+      "observed": "During this work the host was at memory pressure (psi some avg10 94, load average 31) from other agents' npm installs and tree scans; trivial commands took 80 to 100 s and heavy-command slots were contended. npm ci for the existing vega tests was not completed.",
+      "decided": "Verification was limited to the infographic tests, which need no node_modules.",
+      "open": [
+        "Existing Vega-Lite tests were not re-run on this branch; they are untouched by the change.",
+        "Heavy-command scheduling for agent fleets."
+      ],
+      "provenance": "/proc/pressure/memory and uptime read during the session"
+    },
+    {
+      "id": "2026-10-24-media-plan-slot-shape",
+      "observed": "Shared media plan (computer-media-engineering-services-section PR #5) admits visual.assets[] of { id, role frame|overlay, mediaType image/svg+xml, svg <= 400000 chars self-contained, or identity NI, producer }. media-engineering-services-section PR #1 embeds each asset as a data-URI <image> on a hard-coded 540x960 scene with preserveAspectRatio=meet and rasterises through ffmpeg. All four example infographics pass svgIsSelfContained (74k-123k chars) and a 9:16 asset composites through ffmpeg exactly as composeShotSvg does (checked here).",
+      "decided": "mediaPlanAsset() / `infographic plan-asset` emit exactly the slot shape with no adaptation; they refuse an aspect that differs from the plan's (the renderer would letterbox it silently), always outline text (an SVG inside <image> loads no fonts) and warn when the smallest text would be under 10 px at the render width.",
+      "open": [
+        "Proposal on PR #5: asset declares aspect (or the admit step reads the viewBox) and admission refuses mismatch with plan.aspect; the 540x960 scene in the renderer is hard-coded and ignores plan.aspect 16:9 and render.width.",
+        "Proposal on PR #5: producer.spec should carry the spec digest and the identity should be required for inline assets so a renderer can verify bytes.",
+        "Proposal: export svgIsSelfContained from the media-plan module so the infographic engine need not restate it (restated copy can drift).",
+        "Default render width 360 px makes any infographic text under 8 px; infographics for video need a sparse video spec (fewer words) rather than the poster density; no video-density rubric yet.",
+        "Not tested: the full media-plan compile and the renderer end to end (host starved); only the composite step."
+      ],
+      "provenance": "read of cmes-pr5 src/media-plan.mjs and mes pr1 apps/previsualize-microdrama.mjs; slot-check script run 2026-10-24"
+    }
+  ]
+}
