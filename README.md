@@ -186,7 +186,7 @@ export function renderInfographic(spec, { textMode }) // -> { svg, sha256, bytes
 
 ### Quality rubric and benchmark
 
-`src/infographic/score.mjs` defines quality as eleven measures a script computes (text fit, collisions, alignment, grid, type hierarchy, legibility, WCAG contrast, density, accessibility, determinism, provenance); see `lib/agency/skills/score-infographic/references/rubric.md`. `infographic compare` sets those scores beside pixel descriptors and a reviewer audit of NotebookLM infographics (`data/benchmark/`). Pixel descriptors are not scores, and audited values are labelled as judgment; a composite that mixes them is deliberately not computed.
+`src/infographic/score.mjs` defines quality as eleven measures a script computes (text fit, collisions, alignment, grid, type hierarchy, legibility, WCAG contrast, density, accessibility, determinism, provenance); see `data/records/agent-records/skills/score-infographic/references/rubric.md`. `infographic compare` sets those scores beside pixel descriptors and a reviewer audit of NotebookLM infographics (`data/benchmark/`). Pixel descriptors are not scores, and audited values are labelled as judgment; a composite that mixes them is deliberately not computed.
 
 PNG frames come from `rsvg-convert` (stable on one host and version; the SVG digest is the identity). Fonts are Noto Sans and Noto Serif Bold, SIL OFL 1.1, subset by `scripts/build-infographic-fonts.py` (`src/infographic/fonts/OFL.txt`). Example data: NOAA NCEI nClimDiv (Minnesota climate division 3) and NASA GISTEMP v4, committed under `data/climate/` with retrieval dates; the Minnesota outline is a simplified US Census boundary (`data/geo/`).
 
