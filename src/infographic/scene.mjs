@@ -1,7 +1,6 @@
 import { sha256Hex } from "@red-cup-engineering/semiotic-content-address-system";
 // The scene: an append-only SVG writer that also keeps the layout report the scorer reads. Text is drawn either as
 // outlined glyph <use>s (default: identical in every renderer, no fonts needed) or as live <text>.
-import { createHash } from "node:crypto";
 import { loadFace } from "./font.mjs";
 import { wrapText } from "./text.mjs";
 import { contrast } from "./color.mjs";

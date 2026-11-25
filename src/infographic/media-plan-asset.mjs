@@ -4,7 +4,7 @@
 // The renderer (media-engineering-services-section) embeds each asset as a data-URI <image> on a scene with
 // preserveAspectRatio="xMidYMid meet", so the asset's aspect must equal the plan's and its text must be outlined (an
 // SVG inside <image> loads no fonts): this module checks both and refuses rather than letterboxing silently.
-import { createHash } from "node:crypto";
+import { niUriFromDigest, sha256 } from "@red-cup-engineering/semiotic-content-address-system";
 import { renderInfographic, ENGINE_VERSION } from "./render.mjs";
 
 export const MAX_INLINE_SVG_CHARS = 400000;
@@ -21,7 +21,7 @@ export function svgIsSelfContained(svg) {
   return true;
 }
 
-export const niOf = (text) => `ni:///sha-256;${createHash("sha256").update(text).digest("base64url")}`;
+export const niOf = (text) => niUriFromDigest(sha256(text));
 
 /**
  * @param spec an infographic spec

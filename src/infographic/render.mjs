@@ -1,4 +1,5 @@
 import { sha256Hex } from "@red-cup-engineering/semiotic-content-address-system";
+import { canonicalJson } from "@red-cup-engineering/json-engine/canonical-json";
 // renderInfographic: spec -> { svg, sha256, bytes, report, warnings }. Pure and deterministic: the output is a function of
 // the spec alone (no clock, no randomness, no system fonts, no network).
 import { CANVAS_PRESETS, resolveTheme } from "./theme.mjs";
@@ -11,13 +12,6 @@ import { plainText } from "./text.mjs";
 
 export const ENGINE_VERSION = "0.2.0";
 const PLANNERS = { ...BLOCKS, chart };
-
-/** Stable JSON: object keys sorted, so the digest does not depend on key order. */
-export function canonicalJson(value) {
-  if (Array.isArray(value)) return `[${value.map(canonicalJson).join(",")}]`;
-  if (value !== null && typeof value === "object") return `{${Object.keys(value).sort().map((k) => `${JSON.stringify(k)}:${canonicalJson(value[k])}`).join(",")}}`;
-  return JSON.stringify(value);
-}
 
 export function resolveCanvas(canvas = {}) {
   const preset = typeof canvas.preset === "string" ? CANVAS_PRESETS[canvas.preset] : null;

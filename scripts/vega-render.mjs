@@ -1,6 +1,6 @@
 // The deterministic Vega-Lite -> SVG core shared by the operations. Nothing here touches the network, the
 // filesystem, the clock or ambient randomness: every byte of output is a function of the request.
-import { addressContent } from "@red-cup-engineering/computer-content-address-engineering-services-section/content-address";
+import { addressContent } from "@red-cup-engineering/semiotic-content-address-system";
 import { sha256Hex } from "@red-cup-engineering/cryptographic-integrity-service";
 import { element, serialize } from "@red-cup-engineering/xml-document-rendering-service/core";
 import { readXmlDocument } from "@red-cup-engineering/xml-document-rendering-service/document-read";
